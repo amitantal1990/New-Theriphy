@@ -1,0 +1,6 @@
+module Pods_Theriphy_TheriphyTests {
+  umbrella header "Pods-Theriphy-TheriphyTests-umbrella.h"
+
+  export *
+  module * { export * }
+}

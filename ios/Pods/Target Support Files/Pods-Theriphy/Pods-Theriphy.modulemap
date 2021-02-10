@@ -1,0 +1,6 @@
+module Pods_Theriphy {
+  umbrella header "Pods-Theriphy-umbrella.h"
+
+  export *
+  module * { export * }
+}
