@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Text, StyleSheet, View, TextInput, ImageBackground, Platform, TouchableOpacity, DeviceEventEmitter } from 'react-native'
 import Header from '../../component/ProfileHeader'
 import { bg_icon, user_icon, key_icon, edit_icon } from '../../utility/ImageConstant'
-import { wp, hp, showCameraImagePicker, showGalleryImagePicker, storeData } from '../../utility'
+import { wp, hp, showCameraImagePicker, showGalleryImagePicker, storeData, retrieveData } from '../../utility'
 import InputView from '../../component/ProfileInput'
 import ActionSheet from '../../component/ActionSheet'
 import Modal from 'react-native-modal'
@@ -10,12 +10,12 @@ import { CLR_PRIMARY, CLR_LIGHT_LIGHT_GRAY, CLR_LIGHT_GRAY } from '../../utility
 import Loader from '../../component/Loader'
 import Toast from 'react-native-simple-toast';
 import API from '../../utility/API';
-import { API_UPDATE_PROFILE, SUCCESS_STATUS, API_GET_USER_DATA } from '../../utility/APIConstant'
+import { API_UPDATE_PROFILE, SUCCESS_STATUS, API_GET_USER_DATA, API_UPLOAD_MOTIVATION_IMAGE } from '../../utility/APIConstant'
 import { Content } from 'native-base'
 import DateTimePicker from '@react-native-community/datetimepicker';
 import DatePicker from 'react-native-date-picker'
 import moment from 'moment'
-import {DefaultTheme, DarkTheme} from '@react-navigation/native';
+import { DefaultTheme, DarkTheme } from '@react-navigation/native';
 
 const UPLOAD_OPTIONS = [
     { title: "Open Camera", color: CLR_PRIMARY },
@@ -66,7 +66,7 @@ export default class Profile extends Component {
                         imageUri={imageUri}
                         onPressBack={() => this.props.navigation.goBack()}
                     />
-                    <Content>
+                    <Content style = {{flex: 1}}>
                         <View style={styles.inputContainerView}>
                             <InputView source={edit_icon}
                                 inputTitle={'Name'}
@@ -81,7 +81,7 @@ export default class Profile extends Component {
                                 inputTitle={'Email Address'}
                                 value={email_address}
                                 editable={false}
-                                
+
                             />
                             <InputView source={edit_icon}
                                 inputTitle={'Phone Number'}
@@ -110,6 +110,9 @@ export default class Profile extends Component {
                             <TouchableOpacity style={styles.bottomViewContainer} onPress={() => this.saveDetailAction()}>
                                 <Text style={{ color: 'white', fontSize: wp(5.6) }}>Save Detail</Text>
                             </TouchableOpacity>
+                            <TouchableOpacity style={{...styles.bottomViewContainer, marginTop: 12 }} onPress={() => this.props.navigation.navigate('ChangePassword')}>
+                                <Text style={{ color: 'white', fontSize: wp(5.6) }}>Change Password</Text>
+                            </TouchableOpacity>
                         </View>
                     </Content>
                     <Loader loading={loading} />
@@ -133,7 +136,7 @@ export default class Profile extends Component {
                             onChange={(e, v) => {
                                 // console.log('get value------>>', e.type)
                                 // console.log('get value------XX', v)
-                                e.type === 'dismissed' ? this.setState({isShowPicker: false}) : this.setState({ date_birth: moment(v).format('MM/DD/YYYY'), isShowPicker: false })
+                                e.type === 'dismissed' ? this.setState({ isShowPicker: false }) : this.setState({ date_birth: moment(v).format('MM/DD/YYYY'), isShowPicker: false })
                             }}
                         />
                     }
@@ -179,10 +182,14 @@ export default class Profile extends Component {
                 break;
         }
     };
-    getPhoto = (res) => {
+    getPhoto = async (res) => {
         this.setState({ isActionSheet: false })
         console.log('get image -----', res);
         this.setState({ imageUri: res })
+    }
+    successMotivationResponse = (response) => {
+        console.log('get Motivation response-------', response);
+        this.setState({ loading: false })
     }
     cancelButton = () => {
         this.setState({ isActionSheet: false })
@@ -214,7 +221,7 @@ export default class Profile extends Component {
                 uri: imageUri,
                 width: wp(100),
                 height: wp(100),
-                name: (new Date().getTime()).toString() +  ".jpg",
+                name: (new Date().getTime()).toString() + ".jpg",
                 type: "image/jpeg"
             };
             body.append("image", imageData);
@@ -333,7 +340,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: hp(4),
         shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.6,
+        shadowOpacity: Platform.OS === 'ios' ? 0.3 : 0.6,
         shadowRadius: wp(5),
         elevation: 5,
         shadowColor: CLR_PRIMARY

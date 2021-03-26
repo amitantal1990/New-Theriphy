@@ -1,14 +1,20 @@
 import React, { Component } from 'react'
 import { Text, StyleSheet, View, Linking, ImageBackground, FlatList, TouchableOpacity, Image, RefreshControl } from 'react-native'
 import Header from '../../../component/Header'
-import { bg_icon, book_icon } from '../../../utility/ImageConstant'
+import { bg_icon, book_icon, delete_icon } from '../../../utility/ImageConstant'
 import Loader from '../../../component/Loader'
 import Toast from 'react-native-simple-toast';
 import API from '../../../utility/API';
-import { wp, hp, retrieveData } from '../../../utility'
+import { wp, hp, retrieveData, youtube_parser } from '../../../utility'
 import { SUCCESS_STATUS, API_GET_READING_DATA } from '../../../utility/APIConstant'
 import { Content } from 'native-base';
-
+import { WebView } from 'react-native-webview';
+import YoutubePlayer from '../../../component/YoutubePlayer'
+// import YouTube from 'react-native-youtube'
+import { CLR_PRIMARY } from '../../../utility/Colors'
+import { useIsFocused } from '@react-navigation/native'
+// import YoutubePlayer from "react-native-youtube-iframe";
+// const isFocused = useIsFocused();
 export default class Reading extends Component {
 
     constructor(props) {
@@ -18,28 +24,31 @@ export default class Reading extends Component {
             readingList: [],
             searchText: '',
             isFetching: false,
+            youtubeVideoId: '',
         }
     }
     componentDidMount() {
-
         this._unsubscribe = this.props.navigation.addListener('focus', () => {
-            this.setState({searchText: ''})
+            this.setState({ searchText: '' })
             this.getReadingData()
         });
-        this.setState({loading: true })
+        this.setState({ loading: true })
         this.getReadingData()
     }
 
     componentWillUnmount() {
         this._unsubscribe();
+        this.setState({youtubeVideoId: ''})
     }
+
     onRefresh = () => {
         this.setState({ isFetching: true, searchText: '' }, () => {
             this.getReadingData()
         });
     }
+
     render() {
-        const { readingList, loading, searchText, isFetching } = this.state
+        const { readingList, loading, searchText, isFetching, youtubeVideoId } = this.state
         return (
             <View style={{ flex: 1 }}>
                 <ImageBackground source={bg_icon} style={styles.backgroundImageView}>
@@ -50,6 +59,7 @@ export default class Reading extends Component {
                         searchText={searchText}
                     />
                     <Loader loading={loading} />
+
                     {/* <Content style={{ flex: 1 }} contentContainerStyle={{ alignItems: 'center' }}> */}
                     <FlatList
                         style={{}}
@@ -65,6 +75,19 @@ export default class Reading extends Component {
                         renderItem={this.renderReadingItem}
                         keyExtractor={(item, index) => index.toString()}
                     />
+                    {youtubeVideoId !== '' &&
+
+                        <View style={{ width: wp(100), position: 'absolute', top: hp(23), }}>
+                            <YoutubePlayer
+                                videoId={youtubeVideoId}
+                            />
+                            <TouchableOpacity style={{ width: 30, height: 30, position: 'absolute', right: wp(4) - 15, top: -15, alignItems: 'center', }}
+                                onPress={() => this.setState({ youtubeVideoId: '' })}
+                            >
+                                <Image source={delete_icon} style={{ width: 30, height: 30, resizeMode: 'contain', tintColor: CLR_PRIMARY }} />
+                            </TouchableOpacity>
+                        </View>
+                    }
                     {/* </Content> */}
                 </ImageBackground>
             </View>
@@ -73,16 +96,27 @@ export default class Reading extends Component {
 
     tabbedItemView = (item) => {
         if (item.file_type === 'links') {
-            Linking.canOpenURL(item.url).then(supported => {
-                if (supported) {
-                    Linking.openURL(item.url);
-                } else {
-                    console.log("Don't know how to open URI: " + item.url);
-                }
-            });
+            if (item.is_youtube === '1') {
+                this.setState({ youtubeVideoId: item.youtube_video_id })
+            } else {
+                Linking.canOpenURL(item.url).then(supported => {
+                    if (supported) {
+                        Linking.openURL(item.url);
+                    } else {
+                        console.log("Don't know how to open URI: " + item.url);
+                    }
+                });
+            }
         } else {
             this.props.navigation.navigate('ReadingDetail', { data: item })
         }
+
+        let body = new FormData()
+        body.append("content_id", item.id);
+        console.log('get value---------', body);
+
+        let url = 'https://theriphy.myfileshosting.com/api/reading-access-count'
+        API.postApi(url, body, this.successUpdateResponse, this.failureResponse);
 
     }
 
@@ -112,7 +146,7 @@ export default class Reading extends Component {
                 <TouchableOpacity style={styles.renderContainer}
                     onPress={() => this.tabbedItemView(item.item)}
                 >
-                    <Image source={images} style={{ width: '60%', height: '60%', resizeMode: 'contain' }} />
+                    <Image source={item.item.icon_file_path === '' ? images : { uri: item.item.icon_file_path }} style={{ width: '60%', height: '60%', resizeMode: 'contain' }} />
                     <Text style={{ textAlign: 'center', marginTop: 8, fontSize: wp(3.4), color: 'black' }} numberOfLines={2} >{item.item.tags}</Text>
                 </TouchableOpacity>
                 <Text style={{ textAlign: 'center', marginTop: 8, fontSize: wp(4.2), color: 'black' }} >{item.item.title}</Text>
@@ -132,7 +166,7 @@ export default class Reading extends Component {
             this.setState({ searchText: text })
             API.postApi(API_GET_READING_DATA, body, this.successSearchResponse, this.failureResponse);
         } else {
-            this.setState({ searchText: text})
+            this.setState({ searchText: text })
             this.getReadingData()
         }
     }
@@ -150,13 +184,20 @@ export default class Reading extends Component {
             let updatedArray = []
             response.data.data.map((item, index) => {
                 const data = JSON.parse(JSON.stringify(item).replace(/\:null/gi, "\:\"\""))
+
+                if (data.icon_file_path.length > 4 && data.icon_file_name.length > 4) {
+                    data.icon_file_path = 'https://theriphy.myfileshosting.com/public/' + data.icon_file_path + data.icon_file_name
+                } else {
+                    data.icon_file_path = ''
+                }
+
                 if (data.file_type === 'text' || data.file_type === 'jpg' || data.file_type === 'png' || data.file_type === 'xlsx' || data.file_type === 'txt' || data.file_type === 'pdf' || data.file_type === 'docx') {
                     data.file_path = 'https://theriphy.myfileshosting.com/public/' + data.file_path + data.file_name
                     // console.log('get image path=======', data.file_path);
                 }
                 updatedArray.push(data)
             })
-            // console.log('get con------------', updatedArray);
+            console.log('get con------------>>', updatedArray);
             this.setState({ readingList: updatedArray })
         } else {
             setTimeout(() => {
@@ -181,6 +222,11 @@ export default class Reading extends Component {
                 const data = JSON.parse(JSON.stringify(item).replace(/\:null/gi, "\:\"\""))
                 // data.relaxation_audio = 'https://theriphy.myfileshosting.com/' + data.file_path + data.relaxation_audio
                 // console.log('get image path=======..........>>>>>', data.file_path);
+                if (data.icon_file_path.length > 4 && data.icon_file_name.length > 4) {
+                    data.icon_file_path = 'https://theriphy.myfileshosting.com/public/' + data.icon_file_path + data.icon_file_name
+                } else {
+                    data.icon_file_path = ''
+                }
                 if (data.file_type === 'text' || data.file_type === 'jpg' || data.file_type === 'png' || data.file_type === 'xlsx' || data.file_type === 'txt' || data.file_type === 'pdf' || data.file_type === 'docx') {
                     data.file_path = 'https://theriphy.myfileshosting.com/public/' + data.file_path + data.file_name
                     // console.log('get image path=======', data.file_path);

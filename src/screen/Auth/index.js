@@ -10,6 +10,7 @@ import API from '../../utility/API';
 import { API_LOGIN, SUCCESS_STATUS, API_GET_USER_DATA } from '../../utility/APIConstant';
 import { emailValidation, wp, hp, storeData } from '../../utility';
 import { hint_email, hint_password_length, hint_password, hint_valid_email } from '../../utility/Constant';
+// _youTubeRef = React.createRef();
 // netqom_patient100@mailinator.com
 // justdoit@100
 var login = 0
@@ -17,8 +18,8 @@ export default class Login extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            user_name: '',
-            password: '',
+            user_name: 'netqom_patient100@mailinator.com',
+            password: 'justdoit@100',
             loading: false,
             isNext: false,
             scrollMar: 0,
@@ -66,6 +67,7 @@ export default class Login extends Component {
                                     onSubmitEditing={() => alert('hello')}
                                     onChangeText={text => this.setState({ user_name: text })}
                                 /> */}
+                               
                                 <View style={{ borderColor: CLR_LIGHT_GRAY, borderWidth: 1.5, flexDirection: 'row', marginTop: 10, width: '100%', height: Platform.OS === 'ios' ? wp(14) : wp(14) }}>
                                     <View style={{ width: '13%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
                                         <Image style={{ width: '50%', height: '50%', resizeMode: 'contain' }} source={user_icon} />
@@ -74,7 +76,7 @@ export default class Login extends Component {
                                         placeholder={'Email Address'}
                                         autoCapitalize={'none'}
                                         returnKeyType={"next"}
-                                        placeholderTextColor = {CLR_PLACEHOLDER}
+                                        placeholderTextColor={CLR_PLACEHOLDER}
                                         onSubmitEditing={() => { this.secondTextInput.focus() }}
                                         onChangeText={text => this.setState({ user_name: text })}
                                     />
@@ -87,7 +89,7 @@ export default class Login extends Component {
                                         placeholder={'Enter Password'}
                                         secureTextEntry={true}
                                         autoCapitalize={'none'}
-                                        placeholderTextColor = {CLR_PLACEHOLDER}
+                                        placeholderTextColor={CLR_PLACEHOLDER}
                                         ref={(input) => { this.secondTextInput = input; }}
                                         returnKeyType={"done"}
                                         onChangeText={text => this.setState({ password: text })}
@@ -237,10 +239,10 @@ const styles = StyleSheet.create({
         marginTop: hp(3),
         marginBottom: 3,
         shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.6,
+        shadowOpacity: Platform.OS === 'ios' ? 0.3 : 0.6,
         shadowRadius: wp(5),
         elevation: 15,
         shadowColor: CLR_PRIMARY
     },
-   
+
 })

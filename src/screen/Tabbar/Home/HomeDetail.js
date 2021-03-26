@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, ImageBackground, FlatList, Image, Platform } from 'react-native'
+import { Text, NativeModules, StyleSheet, View, ImageBackground, FlatList, Image, Platform } from 'react-native'
 import { Content } from 'native-base'
 import Loader from '../../../component/Loader'
 import Header from '../../../component/Header'
@@ -18,13 +18,15 @@ export default class HomeDetail extends Component {
         super(props)
         this.state = {
             loading: false,
-            heightData: 0
+            heightData: 0,
+            webUrl: ''
         }
     }
 
     render() {
-        const { loading, heightData } = this.state
-        const { updated_at, file_path, title, text_data, tags, file_type } = this.props.route.params.data
+        const { loading, heightData, webUrl } = this.state
+        const { created_at, file_path, title, text_data, tags, file_type, icon_file_path } = this.props.route.params.data
+        let WebViewRef;
         // console.log('get ------------', this.props.route.params.data)
         // console.log('get ------------', file_path)
         // console.log('get ------------', file_type)
@@ -40,8 +42,7 @@ export default class HomeDetail extends Component {
             images = require('../../../assets/pdf-icon.png')
         } else if (file_type === "links") {
             images = require('../../../assets/web.png')
-        }
-        else {
+        } else {
             images = require('../../../assets/doc.png')
         }
         let fileUrl = ''
@@ -49,8 +50,7 @@ export default class HomeDetail extends Component {
             fileUrl = 'https://docs.google.com/gview?embedded=true&url=' + file_path
         } else if (file_type === "txt") {
             fileUrl = file_path
-        }
-        else {
+        } else {
             fileUrl = 'https://view.officeapps.live.com/op/embed.aspx?src=' + file_path + '&embedded=true'
         }
         return (
@@ -58,15 +58,15 @@ export default class HomeDetail extends Component {
                 <ImageBackground source={bg_icon} style={styles.backgroundImageView}>
                     <Loader loading={loading} />
                     {(file_type === "docx" || file_type === "txt" || file_type === "xlsx" || file_type === "pdf") &&
-                        <View style={{ ...styles.listContainer}}>
+                        <View style={{ ...styles.listContainer }}>
                             <View style={{ width: '100%', flexDirection: 'row', borderBottomColor: CLR_LIGHT_LIGHT_GRAY, borderBottomWidth: 1.0 }}>
-                                <Image style={styles.topicImage} source={images} />
+                                <Image style={styles.topicImage} source={icon_file_path === '' ? images : { uri: icon_file_path }} />
                                 <View style={{ marginTop: 10, color: CLR_DARKGREY }}>
                                     <View style={{ flexDirection: 'row', }}>
                                         <Text numberOfLines={1} style={{ width: wp('92') - 190, color: CLR_DARKGREY, fontSize: wp(4.5) }} >{title}</Text>
                                         <View style={{ flexDirection: 'row', width: 110 }}>
                                             <Image style={{ width: 15, height: 15, resizeMode: 'contain', backgroundColor: '#EBDEDE', tintColor: CLR_PRIMARY }} source={calendar_icon} />
-                                            <Text style={{ color: CLR_PRIMARY }}> {moment(updated_at).fromNow()}</Text>
+                                            <Text style={{ color: CLR_PRIMARY }}> {moment(created_at).fromNow()}</Text>
                                             {/* <Text style={{ color: CLR_PRIMARY }}> {moment(updated_at).format('MM/DD/YYYY')}</Text> */}
                                         </View>
                                     </View>
@@ -91,13 +91,16 @@ export default class HomeDetail extends Component {
                             } */}
                             {/* {Platform.OS === 'android' && */}
                             <WebView
+                                ref={WEBVIEW_REF => (WebViewRef = WEBVIEW_REF)}
                                 source={{ uri: fileUrl }}
                                 style={{ width: wp(92), height: hp(100), marginTop: 10 }}
                                 automaticallyAdjustContentInsets={false}
-                                onLoad={() => this.setState({ loading: false })}
+                                // onLoad={() => this.setState({ loading: false })}
+                                onLoadEnd={(res) => loading ? this.setState({ loading: false }) : WebViewRef.reload()}
+
                                 onLoadStart={() => this.setState({ loading: true })}
                                 contentMode={'mobile'}
-                                // startInLoadingState={true}
+                                startInLoadingState={true}
                                 // injectedJavaScript={`const meta = document.createElement('meta'); meta.setAttribute('content', 'width=device-width, initial-scale=0.5, maximum-scale=0.5, user-scalable=0'); meta.setAttribute('name', 'viewport'); document.getElementsByTagName('head')[0].appendChild(meta); `}
                                 scalesPageToFit={false}
                             />
@@ -106,17 +109,17 @@ export default class HomeDetail extends Component {
                     }
 
                     {(file_type === "jpg" || file_type === "png" || file_type === "text" || file_type === "jpeg") &&
-                        <Content style={{ flex: 1}} contentContainerStyle={{ alignItems: 'center' }} bounces={false}>
+                        <Content style={{ flex: 1 }} contentContainerStyle={{ alignItems: 'center' }} bounces={false}>
                             <View style={styles.listContainer}>
                                 <View style={{ width: '100%', flexDirection: 'row', borderBottomColor: CLR_LIGHT_LIGHT_GRAY, borderBottomWidth: 1.0 }}>
                                     {/* <View style={{ flexDirection: 'row' }}> */}
-                                    <Image style={styles.topicImage} source={images} />
+                                 <Image style={styles.topicImage} source={icon_file_path === '' ? images : { uri: icon_file_path }} />
                                     <View style={{ marginTop: 10, color: CLR_DARKGREY }}>
                                         <View style={{ flexDirection: 'row', }}>
                                             <Text numberOfLines={1} style={{ width: wp('92') - 190, color: CLR_DARKGREY, fontSize: wp(4.5) }} >{title}</Text>
                                             <View style={{ flexDirection: 'row', width: 110 }}>
                                                 <Image style={{ width: 15, height: 15, resizeMode: 'contain', backgroundColor: '#EBDEDE', tintColor: CLR_PRIMARY }} source={calendar_icon} />
-                                                <Text style={{ color: CLR_PRIMARY }}> {moment(updated_at).fromNow()}</Text>
+                                                <Text style={{ color: CLR_PRIMARY }}> {moment(created_at).fromNow()}</Text>
                                                 {/* <Text style={{ color: CLR_PRIMARY }}> {moment(updated_at).format('MM/DD/YYYY')}</Text> */}
                                             </View>
                                         </View>
@@ -161,6 +164,7 @@ export default class HomeDetail extends Component {
                         onPressAccount={() => this.props.navigation.navigate('Profile')}
                         onPressLogout={() => alert('hello')}
                         isBack={true}
+                        hideSearch = {true}
                         onPressBack={() => this.props.navigation.goBack()}
                     />
                 </View>

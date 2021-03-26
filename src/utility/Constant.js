@@ -5,8 +5,11 @@ export const hint_country = 'Please Select Your Country';
 export const hint_phone = 'Please Enter Phone Number';
 export const hint_valid_phone = 'Please Enter Valid Phone Number';
 export const hint_password = 'Please Enter Password';
+export const hint_old_password = 'Please Enter Old Password';
 export const hint_password_length = 'Password length must be between 6 to 15';
 export const hint_confirm_password_match = 'Confirm Password should be same as Password';
+export const hint_valid_old_password = 'Old Password length must be between 6 to 20';
+export const hint_password_confirm = 'Password & Confirm Password did not match';
 
 export const Name_Length = 'Name Length must not greater then 20';
 export const Name_Blank_Spaces = 'Name must not contain only blank spaces';

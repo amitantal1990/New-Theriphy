@@ -13,8 +13,11 @@ import AudioPlayer from '../screen/Tabbar/Relaxation/audioPlayer'
 import Home from '../screen/Tabbar/Home'
 import HomeDetail from '../screen/Tabbar/Home/HomeDetail'
 import Profile from '../screen/Auth/Profile'
+import ChangePassword from '../screen/Auth/ChangePassword'
 import Motivation from '../screen/Tabbar/Motivation'
+import ImageDetail from '../screen/Tabbar/Motivation/ImageDetail'
 import Rogue from '../screen/Tabbar/Rogue'
+import RogueDetail from '../screen/Tabbar/Rogue/RogueDetail'
 import CustomTabBar from './CustomTabBar';
 import { read_icon, meditation_icon, home_icon, motivation_icon, rogue_icon } from '../utility/ImageConstant'
 
@@ -99,6 +102,13 @@ const MotivationPage = () => {
                 }}
                 component={Motivation}
             />
+            <MotivationStack.Screen
+                name={'ImageDetail'}
+                options={{
+                    headerShown: false,
+                }}
+                component={ImageDetail}
+            />
         </MotivationStack.Navigator>
     )
 }
@@ -113,13 +123,13 @@ const RoguePage = () => {
                 }}
                 component={Rogue}
             />
-            {/* <RogueStack.Screen
-                name={'Profile'}
+            <RogueStack.Screen
+                name={'RogueDetail'}
                 options={{
                     headerShown: false,
                 }}
-                component={Profile}
-            /> */}
+                component={RogueDetail}
+            />
 
         </RogueStack.Navigator>
     )
@@ -127,40 +137,42 @@ const RoguePage = () => {
 
 const Tab = createBottomTabNavigator();
 const TabPage = () => {
-return (
-    <Tab.Navigator
-        initialRouteName="Reading"
-        tabBar={props => <CustomTabBar {...props} />}
-    >
-        <Tab.Screen
-            name="Reading"
-            component={ReadingPage} />
-        <Tab.Screen
-            name="Relaxation"
-            component={RelaxationPage} />
-        <Tab.Screen
-            name="Homework"
-            component={HomePage} />
-        <Tab.Screen
-            name="Motivation"
-            component={MotivationPage} />
-        <Tab.Screen
-            name="Go Rogue"
-            
-            component={RoguePage} />
-    </Tab.Navigator>
-)
+    return (
+        <Tab.Navigator
+            initialRouteName="Reading"
+            tabBar={props => <CustomTabBar {...props} />}
+        >
+            <Tab.Screen
+                name="Reading"
+                component={ReadingPage} />
+            <Tab.Screen
+                name="Meditation"
+                component={RelaxationPage} />
+            <Tab.Screen
+                name="Homework"
+                component={HomePage} />
+            <Tab.Screen
+                name="Motivation"
+                component={MotivationPage} />
+            <Tab.Screen
+                name="Go Rogue"
+                component={RoguePage} />
+        </Tab.Navigator>
+    )
 }
-const Stack =createStackNavigator()
+const Stack = createStackNavigator()
 export default function TabRoot() {
     return (
         <Stack.Navigator>
             <Stack.Screen name="Reading" component={TabPage} options={{
-                    headerShown: false,
-                }}  />
+                headerShown: false,
+            }} />
             <Stack.Screen name="Profile" component={Profile} options={{
-                    headerShown: false,
-                }}/>
+                headerShown: false,
+            }} />
+            <Stack.Screen name="ChangePassword" component={ChangePassword} options={{
+                headerShown: false,
+            }} />
         </Stack.Navigator>
     )
 }

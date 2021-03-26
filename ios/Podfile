@@ -10,6 +10,9 @@ target 'Theriphy' do
 
   pod 'RNSound', :path => '../node_modules/react-native-sound'
 
+  pod 'react-native-view-shot', :path => '../node_modules/react-native-view-shot'
+
+
   target 'TheriphyTests' do
     inherit! :complete
     # Pods for testing

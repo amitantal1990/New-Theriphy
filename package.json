@@ -26,6 +26,7 @@
     "@react-navigation/stack": "^5.12.8",
     "axios": "^0.21.1",
     "axios-retry-interceptor": "^1.1.0",
+    "deprecated-react-native-listview": "0.0.7",
     "moment": "^2.29.1",
     "native-base": "^2.15.2",
     "prop-types": "^15.7.2",
@@ -49,9 +50,12 @@
     "react-native-safe-area-context": "^3.1.9",
     "react-native-screens": "^2.16.1",
     "react-native-simple-toast": "^1.1.3",
+    "react-native-snap-carousel": "^3.9.1",
     "react-native-sound": "^0.11.0",
     "react-native-sound-player": "^0.10.5",
-    "react-native-webview": "^11.2.3"
+    "react-native-view-shot": "^3.1.2",
+    "react-native-webview": "^11.2.3",
+    "react-native-youtube-iframe": "github:LonelyCpp/react-native-youtube-iframe#remote-source"
   },
   "devDependencies": {
     "@babel/core": "7.12.10",

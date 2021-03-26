@@ -120,7 +120,7 @@ const showGalleryImagePicker = async (width, height, successPicker, cancelPicker
         name: "imgageName.jpeg",
         type: image.mime
       }
-      console.log("check this ==> image data ==> abc ", imageData)
+      console.log("check this ==> image data ==> abc ", image)
       // let base64 = `data:${image.mime};base64,`+ image.data;
       if (image.path) {
         successPicker(image.path, imageData);
@@ -132,7 +132,33 @@ const showGalleryImagePicker = async (width, height, successPicker, cancelPicker
   }, 300)
 }
 
+const pickMultipleImagePicker = async (maxChoose, successPicker, cancelPicker) => {
 
+  let obj = {
+    // width: width,
+    // height: height,
+    // cropping: true,
+    // freeStyleCropEnabled: true,
+    // compressImageMaxWidth: width,
+    // compressImageMaxHeight: height,
+    compressImageQuality: 0.60,
+    // compressVideoPreset: 'MediumQuality',
+    // includeBase64: true,
+    // includeExif: true,
+    mediaType: 'photo',
+    maxFiles: 10,
+    multiple: true
+
+  }
+  setTimeout(() => {
+    ImagePicker.openPicker(obj).then((response) => {
+      successPicker(response);
+    }).catch((error) => {
+      console.log("Gallery error : ", error)
+      cancelPicker(error)
+    });
+  }, 300)
+}
 
 
 ////
@@ -173,6 +199,11 @@ const flushAllKeys = () => {
     });
   });
 }
+const youtube_parser = (url) => {
+  var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+  var match = url.match(regExp);
+  return (match&&match[7].length==11)? match[7] : false;
+}
 
 
-export { wp, hp, emailValidation, imageOptions, openGallery, storeData, retrieveData, deleteData, flushAllKeys, showCameraImagePicker, showGalleryImagePicker }
+export { wp, hp, emailValidation, imageOptions, openGallery, storeData, retrieveData, deleteData, flushAllKeys, showCameraImagePicker, showGalleryImagePicker, pickMultipleImagePicker, youtube_parser }

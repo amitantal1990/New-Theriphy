@@ -25,11 +25,11 @@ export default class readingDetail extends Component {
 
     render() {
         const { loading, heightData } = this.state
-        const { updated_at, file_path, title, text_data, tags, file_type } = this.props.route.params.data
+        const { created_at, file_path, title, text_data, tags, file_type, icon_file_path } = this.props.route.params.data
         // console.log('get ------------', this.props.route.params.data)
         // console.log('get ------------', file_path)
         // console.log('get ------------', file_type)
-
+        let WebViewRef;
         let images = ''
         if (file_type === 'png' || file_type === 'jpeg' || file_type === 'jpg') {
             images = require('../../../assets/image.png')
@@ -60,21 +60,21 @@ export default class readingDetail extends Component {
             fileUrl = 'https://view.officeapps.live.com/op/embed.aspx?src=' + file_path + '&embedded=true'
         }
         return (
-            <View style={{ flex: 1,  paddingTop  :  hp(13.3) }}>
+            <View style={{ flex: 1, paddingTop: hp(13.3) }}>
                 <ImageBackground source={bg_icon} style={styles.backgroundImageView}>
 
                     <Loader loading={loading} />
                     {(file_type === "docx" || file_type === "txt" || file_type === "xlsx" || file_type === "pdf") &&
-                        <View style={{ ...styles.listContainer,}}>
+                        <View style={{ ...styles.listContainer, }}>
                             <View style={{ width: '100%', flexDirection: 'row', borderBottomColor: CLR_LIGHT_LIGHT_GRAY, borderBottomWidth: 1.0 }}>
                                 {/* <View style={{ flexDirection: 'row' }}> */}
-                                <Image style={styles.topicImage} source={images} />
+                                <Image style={styles.topicImage} source={icon_file_path === '' ? images : { uri: icon_file_path }} />
                                 <View style={{ marginTop: 10, color: CLR_DARKGREY }}>
                                     <View style={{ flexDirection: 'row', }}>
                                         <Text numberOfLines={1} style={{ width: wp('92') - 165, color: CLR_DARKGREY, fontSize: wp(4.5) }} >{title}</Text>
                                         <View style={{ flexDirection: 'row', width: 80 }}>
                                             <Image style={{ width: 15, height: 15, resizeMode: 'contain', backgroundColor: '#EBDEDE', tintColor: CLR_PRIMARY }} source={calendar_icon} />
-                                            <Text style={{ color: CLR_PRIMARY }}> {moment(updated_at).format('MM/DD/YYYY')}</Text>
+                                            <Text style={{ color: CLR_PRIMARY }}> {moment(created_at).format('MM/DD/YYYY')}</Text>
                                         </View>
                                     </View>
                                     <View style={{ marginTop: 1, marginBottom: 5, width: wp('88') - 60 }}>
@@ -103,34 +103,34 @@ export default class readingDetail extends Component {
                             } */}
                             {/* { Platform.OS === 'android' && */}
                             <WebView
-                                // source={{ uri: 'https://view.officeapps.live.com/op/embed.aspx?src=https://theriphy.myfileshosting.com/public/therapist/2/xlsx/1612943970xlsx/Financial%20Sample.xlsx&embedded=true'}}
                                 source={{ uri: fileUrl }}
-                                // source={{ uri: 'https://view.officeapps.live.com/op/embed.aspx?src=' + file_path + '&embedded=true' }}
+                                ref={WEBVIEW_REF => (WebViewRef = WEBVIEW_REF)}
                                 style={{ width: wp(92), height: hp(100), marginTop: 4 }}
                                 automaticallyAdjustContentInsets={false}
-                                onLoad={() => this.setState({ loading: false })}
+                                // onLoad={() => this.setState({ loading: false })}
+                                onLoadEnd={(res) => loading ? this.setState({ loading: false }) : WebViewRef.reload()}
                                 onLoadStart={() => this.setState({ loading: true })}
-                                // contentMode={'mobile'}
+                                contentMode={'mobile'}
                                 // startInLoadingState={true}
-                                injectedJavaScript={`const meta = document.createElement('meta'); meta.setAttribute('content', 'width=device-width, initial-scale=0.5, maximum-scale=0.5, user-scalable=0'); meta.setAttribute('name', 'viewport'); document.getElementsByTagName('head')[0].appendChild(meta); `}
-                            // scalesPageToFit={false}
+                                // injectedJavaScript={`const meta = document.createElement('meta'); meta.setAttribute('content', 'width=device-width, initial-scale=0.5, maximum-scale=0.5, user-scalable=0'); meta.setAttribute('name', 'viewport'); document.getElementsByTagName('head')[0].appendChild(meta); `}
+                                scalesPageToFit={false}
                             />
                             {/* } */}
 
                         </View>
                     }
                     {(file_type === "jpg" || file_type === "png" || file_type === "text" || file_type === "jpeg") &&
-                        <Content style={{ flex: 1}} contentContainerStyle={{ alignItems: 'center' }} bounces={false}>
+                        <Content style={{ flex: 1 }} contentContainerStyle={{ alignItems: 'center' }} bounces={false}>
                             <View style={styles.listContainer}>
                                 <View style={{ width: '100%', flexDirection: 'row', borderBottomColor: CLR_LIGHT_LIGHT_GRAY, borderBottomWidth: 1.0 }}>
                                     {/* <View style={{ flexDirection: 'row' }}> */}
-                                    <Image style={styles.topicImage} source={images} />
+                                    <Image style={styles.topicImage} source={icon_file_path === '' ? images : { uri: icon_file_path }} />
                                     <View style={{ marginTop: 10, color: CLR_DARKGREY }}>
                                         <View style={{ flexDirection: 'row', }}>
                                             <Text numberOfLines={1} style={{ width: wp('92') - 170, color: CLR_DARKGREY, fontSize: wp(4.5) }} >{title}</Text>
                                             <View style={{ flexDirection: 'row', width: 80 }}>
                                                 <Image style={{ width: 15, height: 15, resizeMode: 'contain', backgroundColor: '#EBDEDE', tintColor: CLR_PRIMARY }} source={calendar_icon} />
-                                                <Text style={{ color: CLR_PRIMARY }}> {moment(updated_at).format('MM/DD/YYYY')}</Text>
+                                                <Text style={{ color: CLR_PRIMARY }}> {moment(created_at).format('MM/DD/YYYY')}</Text>
                                             </View>
                                         </View>
                                         <View style={{ marginTop: 1, marginBottom: 5, width: wp('88') - 60 }}>
@@ -158,6 +158,7 @@ export default class readingDetail extends Component {
                         onPressAccount={() => this.props.navigation.navigate('Profile')}
                         onPressLogout={() => alert('hello')}
                         isBack={true}
+                        hideSearch = {true}
                         onPressBack={() => this.props.navigation.goBack()}
                     />
                 </View>
@@ -205,7 +206,6 @@ const styles = StyleSheet.create({
     },
     topicImage: {
         width: 60, height: 60,
-        backgroundColor: 'pink',
         borderRadius: 30,
         marginTop: 5,
         marginBottom: 8,

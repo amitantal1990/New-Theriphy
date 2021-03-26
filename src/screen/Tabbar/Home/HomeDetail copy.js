@@ -32,6 +32,7 @@ export default class HomeDetail extends Component {
                     onPressAccount={() => this.props.navigation.navigate('Profile')}
                     onPressLogout={() => alert('hello')}
                     isBack={true}
+                    hideSearch = {true}
                     onPressBack={() => this.props.navigation.goBack()}
                 />
 

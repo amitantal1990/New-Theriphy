@@ -30,11 +30,11 @@ export default class PlayerController extends Component {
 
     _handleAppStateChange = (nextAppState) => {
         // console.log('leler', );
-        if (whoosh !== undefined) {
-            this.setState({ isInitialize: true, sliderValue: 0, totalTimer: '00:00', updateTimer: '00:00', isPlay: false })
-            clearInterval(this.timeInterval)
-            Platform.OS === 'ios' ? whoosh.stop() : whoosh.reset()
-        }
+        // if (whoosh !== undefined) {
+        //     this.setState({ isInitialize: true, sliderValue: 0, totalTimer: '00:00', updateTimer: '00:00', isPlay: false })
+        //     clearInterval(this.timeInterval)
+        //     Platform.OS === 'ios' ? whoosh.stop() : whoosh.reset()
+        // }
     }
     componentDidMount() {
 

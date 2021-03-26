@@ -644,6 +644,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = GCNV3KRG27;
 				INFOPLIST_FILE = TheriphyTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -677,7 +678,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.theriphy.app;
 				PRODUCT_NAME = Theriphy;
-				PROVISIONING_PROFILE_SPECIFIER = dev_15feb;
+				PROVISIONING_PROFILE_SPECIFIER = Therapy_Dev_19March;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";

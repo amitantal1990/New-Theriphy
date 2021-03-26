@@ -3,6 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Login from '../screen/Auth'
 import Profile from '../screen/Auth/Profile'
 import ForgotPassword from '../screen/Auth/forgotPassword'
+import ChangePassword from '../screen/Auth/ChangePassword'
 
 const Stack = createStackNavigator();
 export default function LoginRoot() {
@@ -22,6 +23,10 @@ export default function LoginRoot() {
             <Stack.Screen
                 name="Profile"
                 component={Profile}
+            />
+            <Stack.Screen
+                name="ChangePassword"
+                component={ChangePassword}
             />
         </Stack.Navigator>
     )

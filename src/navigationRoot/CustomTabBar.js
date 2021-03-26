@@ -62,8 +62,6 @@ function CustomTabBar({ state, descriptors, navigation }) {
                         <Image style={{ width: 22, height: 22, resizeMode: 'contain', tintColor: CLR_PRIMARY }} source={read_icon} />
                     )
                 }
-
-
                 return (
                     <TouchableOpacity key = {index}
                         accessibilityRole="button"

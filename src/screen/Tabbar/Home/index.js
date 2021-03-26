@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Text, StyleSheet, View, ImageBackground, FlatList, Linking, TouchableOpacity, Image, Platform, RefreshControl } from 'react-native'
 import Wrapper from '../../../component/Wrapper'
 import Header from '../../../component/Header'
-import { bg_icon, play_icon, calendar_icon, web_icon, doc_icon, video_icon, image_icon, complete_icon, un_complete_icon } from '../../../utility/ImageConstant'
+import { bg_icon, play_icon, calendar_icon, web_icon, doc_icon, video_icon, image_icon, complete_icon, un_complete_icon, delete_icon } from '../../../utility/ImageConstant'
 import Loader from '../../../component/Loader'
 import moment from 'moment'
 import Toast from 'react-native-simple-toast';
@@ -13,6 +13,7 @@ import { Content } from 'native-base';
 import SegmentedControl from '@react-native-community/segmented-control'
 import { CLR_PRIMARY, CLR_SECOND_PRIMARY, CLR_DARKGREY, CLR_PLACEHOLDER } from '../../../utility/Colors'
 // import Segment from '../../../component/SegmentView'
+import YoutubePlayer from '../../../component/YoutubePlayer'
 
 export default class Home extends Component {
     constructor(props) {
@@ -24,6 +25,7 @@ export default class Home extends Component {
             selectedIndex: 0,
             searchText: '',
             isFetching: false,
+            youtubeVideoId: ''
         }
     }
     componentDidMount() {
@@ -38,17 +40,22 @@ export default class Home extends Component {
     }
     componentWillUnmount() {
         this._unsubscribe();
+        // this.setState({youtubeVideoId: ''})
     }
 
     tabbedItemView = (item) => {
         if (item.file_type === 'links') {
-            Linking.canOpenURL(item.url).then(supported => {
-                if (supported) {
-                    Linking.openURL(item.url);
-                } else {
-                    console.log("Don't know how to open URI: " + item.url);
-                }
-            });
+            if (item.is_youtube === '1') {
+                this.setState({ youtubeVideoId: item.youtube_video_id })
+            } else {
+                Linking.canOpenURL(item.url).then(supported => {
+                    if (supported) {
+                        Linking.openURL(item.url);
+                    } else {
+                        console.log("Don't know how to open URI: " + item.url);
+                    }
+                });
+            }
         } else {
             this.props.navigation.navigate('HomeDetail', { data: item })
         }
@@ -62,7 +69,7 @@ export default class Home extends Component {
     }
     render() {
 
-        const { selectedIndex, homeList, loading, searchText, historyList, isFetching } = this.state
+        const { selectedIndex, homeList, loading, searchText, historyList, isFetching, youtubeVideoId } = this.state
         return (
             <View style={{ flex: 1 }}>
                 <ImageBackground source={bg_icon} style={styles.backgroundImageView}>
@@ -79,7 +86,7 @@ export default class Home extends Component {
                         containerStyle={{ marginVertical: 20 }}
                         selectedIndex={selectedIndex}
                         //  { ...Platform.OS !== 'ios' ? fontStyle = {color: CLR_PRIMARY } : null}
-                        // fontStyle = {{ color: CLR_PRIMARY }}
+                       // fontStyle={{ color: CLR_PRIMARY }}
                         activeFontStyle={{ color: 'white', fontSize: wp(4.4) }}
                         // backgroundColor= '#ffff'
                         appearance='light'
@@ -90,11 +97,13 @@ export default class Home extends Component {
                         }}
                     />
 
-                    <View style={styles.listContainer}>
+                    {/* <View style={styles.listContainer}> */}
                         <FlatList
                             showsVerticalScrollIndicator={false}
-                            // bounces={false}
+                            // style={{margin: wp(3)}}
+                            style={styles.listContainer}
                             data={selectedIndex == 0 ? homeList : historyList}
+                            // data={[]}
                             renderItem={this.renderHomeItems}
                             refreshControl={
                                 <RefreshControl
@@ -104,8 +113,20 @@ export default class Home extends Component {
                             }
                             keyExtractor={(item, index) => index.toString()}
                         />
-                    </View>
+                    {/* </View> */}
                     <Loader loading={loading} />
+                    {youtubeVideoId !== '' &&
+                        <View style={{ width: wp(100), position: 'absolute', top: hp(23)}}>
+                            <YoutubePlayer
+                                videoId={youtubeVideoId}
+                            />
+                            <TouchableOpacity style={{ width: 30, height: 30, position: 'absolute', right: wp(4) - 15, top: -15, alignItems: 'center', }}
+                                onPress={() => this.setState({ youtubeVideoId: '' })}
+                            >
+                                <Image source={delete_icon} style={{ width: 30, height: 30, resizeMode: 'contain', tintColor: CLR_PRIMARY }} />
+                            </TouchableOpacity>
+                        </View>
+                    }
                 </ImageBackground>
             </View>
         )
@@ -122,7 +143,6 @@ export default class Home extends Component {
         body.append("content_id", id);
         body.append("mark_complete", this.state.selectedIndex == 0 ? '1' : '0');
         console.log('get image ---', body)
-
         this.state.selectedIndex == 0 ? this.setState({ loading: true, homeList: items }) : this.setState({ loading: true, historyList: items })
         API.postApi(API_MARK_COMPLETE_DATA, body, this.successMarkResponse, this.failureResponse);/*  */
     }
@@ -140,20 +160,20 @@ export default class Home extends Component {
             images = require('../../../assets/pdf-icon.png')
         } else if (file_type === "links") {
             images = require('../../../assets/web.png')
-        }
-        else {
+        } else {
             images = require('../../../assets/doc.png')
         }
         return (
-            <TouchableOpacity style={{ width: '100%', height: 110, borderBottomColor: CLR_PLACEHOLDER, borderBottomWidth: 1, flexDirection: 'row' }}
+            <TouchableOpacity style={{ width: '100%', height: 110, borderBottomColor: CLR_PLACEHOLDER, borderBottomWidth: 1, flexDirection: 'row',}}
                 onPress={() => this.tabbedItemView(item.item)}>
-                <Image style={styles.topicImage} source={images} />
+
+                <Image source={item.item.icon_file_path === '' ? images : { uri: item.item.icon_file_path }} style={styles.topicImage} />
                 <View style={{ width: wp('90') - 86, height: 110 }}>
                     <View style={{ flexDirection: 'row', marginTop: 22, marginBottom: 6, justifyContent: 'space-between' }}>
-                        <Text style={{ width: wp('90') - 190, color: CLR_DARKGREY, fontSize: wp(4.5) }} numberOfLines={1}>{item.item.title}</Text>
-                        <View style={{ flexDirection: 'row', width: 104, }}>
+                        <Text style={{ width: wp('90') - 180, color: CLR_DARKGREY, fontSize: wp(4.5) }} numberOfLines={1}>{item.item.title}</Text>
+                        <View style={{ flexDirection: 'row', width: 95, justifyContent: 'flex-end' }}>
                             <Image style={{ width: 15, height: 15, resizeMode: 'contain', tintColor: CLR_PRIMARY }} source={calendar_icon} />
-                            <Text style={{ color: CLR_PRIMARY }}> {moment(item.item.created_at).fromNow()}</Text>
+                            <Text style={{ color: CLR_PRIMARY, fontSize: wp(3) }}> {moment(item.item.created_at).fromNow()}</Text>
                             {/* <Text style={{ color: CLR_PRIMARY }}> {moment(item.item.created_at).format('MM/DD/YYYY')}</Text> */}
                         </View>
                     </View>
@@ -163,13 +183,9 @@ export default class Home extends Component {
                         <Image style={{ width: 24, height: 24, resizeMode: 'contain', tintColor: CLR_PRIMARY, marginTop: 3 }} source={item.item.isComplete ? complete_icon : un_complete_icon} />
                     </TouchableOpacity>
                 </View>
-
-
             </TouchableOpacity>
         )
     }
-
-
     //////////////////// Search Section //////////////////
     searchBtnAction = (text) => {
         console.log('g========', text)
@@ -183,7 +199,7 @@ export default class Home extends Component {
                 this.getHistryData(text)
             }
         } else {
-            this.setState({ searchText: text})
+            this.setState({ searchText: text })
             this.getHomeWorkData()
         }
     }
@@ -203,7 +219,7 @@ export default class Home extends Component {
         API.postApi(url, body, this.successHistoryResponse, this.failureResponse);
     }
     successMarkResponse = (response) => {
-        this.setState({ loading: false})
+        this.setState({ loading: false })
         if (SUCCESS_STATUS == response.status) {
             this.getHomeWorkData()
             this.getHistryData('')
@@ -219,21 +235,19 @@ export default class Home extends Component {
         if (SUCCESS_STATUS == response.status) {
             let updatedArray = []
             response.data.data.map((item, index) => {
-                // file_type: "text"
-                // file_type: "jpg"
-                // file_type: "links"
-                // file_type: "docx"
-                // file_type: "pdf"
-                // file_type: "txt"
-                // file_type: "xlsx"
-                // file_type: "png"
                 const data = JSON.parse(JSON.stringify(item).replace(/\:null/gi, "\:\"\""))
                 data.isComplete = true
                 // data.relaxation_audio = 'https://theriphy.myfileshosting.com/' + data.file_path + data.relaxation_audio
-                console.log('get image path=======..........>>>>>', data.file_path);
+                // console.log('get image path=======..........>>>>>', data.file_path);
+
+                if (data.icon_file_path.length > 4 && data.icon_file_name.length > 4) {
+                    data.icon_file_path = 'https://theriphy.myfileshosting.com/public/' + data.icon_file_path + data.icon_file_name
+                } else {
+                    data.icon_file_path = ''
+                }
                 if (data.file_type === 'text' || data.file_type === 'jpg' || data.file_type === 'png' || data.file_type === 'xlsx' || data.file_type === 'txt' || data.file_type === 'pdf' || data.file_type === 'docx') {
                     data.file_path = 'https://theriphy.myfileshosting.com/public/' + data.file_path + data.file_name
-                    console.log('get image path=======', data.file_path);
+                    // console.log('get image path=======', data.file_path);
                 }
                 updatedArray.push(data)
             })
@@ -247,23 +261,19 @@ export default class Home extends Component {
     }
     successHomeWorkResponse = (response) => {
         console.log('get Home response-------', response);
-        this.setState({ loading: false , isFetching: false })
+        this.setState({ loading: false, isFetching: false })
         if (SUCCESS_STATUS == response.status) {
             let updatedArray = []
             response.data.data.map((item, index) => {
-                // file_type: "text"
-                // file_type: "jpg"
-                // file_type: "links"
-                // file_type: "docx"
-                // file_type: "pdf"
-                // file_type: "txt"
-                // file_type: "xlsx"
-                // file_type: "png"
-
 
                 const data = JSON.parse(JSON.stringify(item).replace(/\:null/gi, "\:\"\""))
                 // data.relaxation_audio = 'https://theriphy.myfileshosting.com/' + data.file_path + data.relaxation_audio
-                console.log('get image path=======..........>>>>>', data.file_path);
+                // console.log('get image path=======..........>>>>>', data.file_path);
+                if (data.icon_file_path.length > 4 && data.icon_file_name.length > 4) {
+                    data.icon_file_path = 'https://theriphy.myfileshosting.com/public/' + data.icon_file_path + data.icon_file_name
+                } else {
+                    data.icon_file_path = ''
+                }
                 data.isComplete = false
                 if (data.file_type === 'text' || data.file_type === 'jpg' || data.file_type === 'png' || data.file_type === 'xlsx' || data.file_type === 'txt' || data.file_type === 'pdf' || data.file_type === 'docx') {
                     data.file_path = 'https://theriphy.myfileshosting.com/public/' + data.file_path + data.file_name
@@ -296,7 +306,8 @@ const styles = StyleSheet.create({
         width: '92%',
         marginBottom: '4%',
         alignSelf: 'center',
-        padding: '3%',
+        paddingLeft : '3%',
+        paddingRight: '3%',
         backgroundColor: 'white',
         borderRadius: 12,
         elevation: 5,
@@ -311,7 +322,6 @@ const styles = StyleSheet.create({
     },
     topicImage: {
         width: 60, height: 60,
-        backgroundColor: 'pink',
         borderRadius: 30,
         marginTop: 20,
         marginRight: 10

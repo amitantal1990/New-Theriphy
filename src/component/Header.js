@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect, } from 'react'
 import { StyleSheet, Text, StatusBar, View, Platform, TextInput, Image, Animated, TouchableOpacity, DeviceEventEmitter } from 'react-native'
 import { wp, hp, storeData, retrieveData } from '../utility';
 
-import { profile_icon, search_icon, drop_down, user_icon, forword_arrow, logout, back_icon } from '../../src/utility/ImageConstant'
+import { profile_icon, info_icon, search_icon, drop_down, user_icon, forword_arrow, logout, back_icon, gallery_icon } from '../../src/utility/ImageConstant'
 import { CLR_BLACK, CLR_PRIMARY, CLR_LIGHT_GRAY, CLR_SECOND_PRIMARY } from '../utility/Colors';
 import LogoutView from './LogoutPopup'
 import Toast from 'react-native-simple-toast';
@@ -96,7 +96,7 @@ export default function Header(props) {
     }
 
     return (
-        <View style={{width: wp(100), height: hp(21)}}>
+        <View style={{ width: wp(100), height: hp(21) }}>
             <View style={[styles.container, { height: Platform.OS === 'ios' ? props.isBack ? hp(13.3) : hp(21) : props.isBack ? hp(13.5) : hp(20.5) }]}>
                 <StatusBar barStyle="dark-content" backgroundColor={CLR_PRIMARY} />
                 <View style={styles.headerTitleContainer}>
@@ -116,7 +116,7 @@ export default function Header(props) {
                         <Image style={{ marginLeft: 5, width: hp(2), height: hp(2), tintColor: 'white', }} source={drop_down} />
                     </TouchableOpacity>
                 </View>
-                {!props.isBack &&
+                {!props.hideSearch &&
                     <View style={styles.searchContainerView}>
                         <TextInput
                             style={styles.inputViewStyle}
@@ -128,6 +128,19 @@ export default function Header(props) {
                         <Image source={search_icon} style={styles.searchImage} />
                     </View>
                 }
+                {props.title === 'Motivation' &&
+                    <View style={styles.uploadImageContainerView}>
+                        <TouchableOpacity style={{ flexDirection: 'row', borderRadius: 9, borderColor: 'white', borderWidth: 1.2, justifyContent: 'center', width: wp(80), height: '100%', alignItems: 'center' }}
+                            onPress={() => props.onPressUpload()}>
+                            <Text style={{ color: 'white', fontSize: wp(4.3) }}>Upload Images</Text>
+                            <Image style={{ width: 25, height: 25, tintColor: 'white', marginLeft: 10, resizeMode: 'contain' }} source={gallery_icon} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{ width: wp(7), height: wp(7), }} onPress={() => props.onPressInfo()}>
+                            <Image style={{ width: '100%', height: '100%', tintColor: 'white' }} source={info_icon} />
+                        </TouchableOpacity>
+                    </View>
+                }
+
                 {/* {props.isBack &&
                     <View style={{ width: wp(100), height: hp(17), backgroundColor: 'red' }}></View>
                 } */}
@@ -153,26 +166,26 @@ export default function Header(props) {
             </View>
 
             {active &&
-                    <Animated.View style={[styles.animatedBox, transformStyle]}>
-                        <TouchableOpacity style={{ flexDirection: 'row', width: '100%', height: '50%', alignItems: 'center', borderBottomColor: CLR_LIGHT_GRAY, borderBottomWidth: 1 }}
-                            onPress={() => clickProfileOption()} >
-                            <Image style={{ resizeMode: 'contain', width: 20, height: 20, marginLeft: 8, marginRight: 10, }}
-                                source={user_icon} />
-                            <Text style={{ color: CLR_BLACK }}>My Account</Text>
-                            <Image style={{ resizeMode: 'contain', tintColor: CLR_PRIMARY, width: 20, height: 20, position: 'absolute', right: 8, }}
-                                source={forword_arrow} />
-                        </TouchableOpacity>
-                        <TouchableOpacity style={{ flexDirection: 'row', width: '100%', height: '50%', alignItems: 'center' }}
-                            onPress={() => clickLogoutOption()}
-                        >
-                            <Image style={{ resizeMode: 'contain', width: 20, height: 20, marginLeft: 8, marginRight: 10, tintColor: CLR_SECOND_PRIMARY }}
-                                source={logout} />
-                            <Text style={{ color: CLR_BLACK }}>Logout</Text>
-                            <Image style={{ resizeMode: 'contain', tintColor: CLR_PRIMARY, width: 20, height: 20, position: 'absolute', right: 8, }}
-                                source={forword_arrow} />
-                        </TouchableOpacity>
-                    </Animated.View>
-                }
+                <Animated.View style={[styles.animatedBox, transformStyle]}>
+                    <TouchableOpacity style={{ flexDirection: 'row', width: '100%', height: '50%', alignItems: 'center', borderBottomColor: CLR_LIGHT_GRAY, borderBottomWidth: 1 }}
+                        onPress={() => clickProfileOption()} >
+                        <Image style={{ resizeMode: 'contain', width: 20, height: 20, marginLeft: 8, marginRight: 10, }}
+                            source={user_icon} />
+                        <Text style={{ color: CLR_BLACK }}>My Account</Text>
+                        <Image style={{ resizeMode: 'contain', tintColor: CLR_PRIMARY, width: 20, height: 20, position: 'absolute', right: 8, }}
+                            source={forword_arrow} />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ flexDirection: 'row', width: '100%', height: '50%', alignItems: 'center' }}
+                        onPress={() => clickLogoutOption()}
+                    >
+                        <Image style={{ resizeMode: 'contain', width: 20, height: 20, marginLeft: 8, marginRight: 10, tintColor: CLR_SECOND_PRIMARY }}
+                            source={logout} />
+                        <Text style={{ color: CLR_BLACK }}>Logout</Text>
+                        <Image style={{ resizeMode: 'contain', tintColor: CLR_PRIMARY, width: 20, height: 20, position: 'absolute', right: 8, }}
+                            source={forword_arrow} />
+                    </TouchableOpacity>
+                </Animated.View>
+            }
         </View>
     )
 }
@@ -216,6 +229,15 @@ const styles = StyleSheet.create({
         marginTop: Platform.OS === 'ios' ? hp(1.4) : hp(2),
         borderRadius: wp(6),
         justifyContent: 'center',
+    },
+    uploadImageContainerView: {
+        borderRadius: 8,
+        flexDirection: 'row',
+        height: wp(12),
+        width: '100%',
+        marginTop: Platform.OS === 'ios' ? hp(1.4) : hp(2),
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
     inputViewStyle: {
         justifyContent: 'center',
