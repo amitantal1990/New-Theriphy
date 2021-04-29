@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, ImageBackground, Image, FlatList, Linking, RefreshControl, TouchableOpacity } from 'react-native'
+import { Text, StyleSheet, View, ImageBackground, DeviceEventEmitter, Image, FlatList, Linking, RefreshControl, TouchableOpacity } from 'react-native'
 import Wrapper from '../../../component/Wrapper'
 import Header from '../../../component/Header'
 import { bg_icon, calendar_icon, delete_icon } from '../../../utility/ImageConstant';
@@ -7,13 +7,12 @@ import Loader from '../../../component/Loader'
 import Toast from 'react-native-simple-toast';
 import API from '../../../utility/API';
 import { wp, hp, } from '../../../utility'
-import { SUCCESS_STATUS, API_GET_RELAXATION_DATA } from '../../../utility/APIConstant'
+import { SUCCESS_STATUS, API_GET_RELAXATION_DATA, API_ROGUE_ACCESS_COUNT } from '../../../utility/APIConstant'
 import { Content } from 'native-base';
 import moment from 'moment'
 import { CLR_PLACEHOLDER, CLR_DARKGREY, CLR_PRIMARY } from '../../../utility/Colors';
 import YoutubePlayer from '../../../component/YoutubePlayer'
 import { useFocusEffect } from "@react-navigation/native"
-
 
 export default class Rogue extends Component {
 
@@ -23,20 +22,18 @@ export default class Rogue extends Component {
             loading: false,
             rogueList: [],
             searchText: '',
-            youtubeVideoId: ''
+            youtubeVideoId: '',
+            isShowDropDown: false,
         }
     }
     componentDidMount() {
         this.getGoRogueData('')
-
-        this.focusListener = this.props.navigation.addListener("focus", () =>
+        this.focusListener = this.props.navigation.addListener("focus", () => {
             this.setState({ youtubeVideoId: '' })
-        );
-        // useFocusEffect(
-        //     React.useCallback(() => {
-
-        //     })
-        // )
+            if (this.state.isShowDropDown) {
+                DeviceEventEmitter.emit('updateUser', { data: 'dropDown' })
+            }
+        })
     }
     componentWillUnmount() {
         this.focusListener()
@@ -52,13 +49,8 @@ export default class Rogue extends Component {
     render() {
         const { rogueList, youtubeVideoId } = this.state
         return (
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, paddingTop: hp(21) }}>
                 <ImageBackground source={bg_icon} style={styles.backgroundImageView}>
-                    <Header title={'Go Rogue'}
-                        onPressAccount={() => this.props.navigation.navigate('Profile')}
-                        onPressLogout={() => alert('hello')}
-                        searchBtnAction={(text) => this.getGoRogueData(text)}
-                    />
                     {/* <View style={styles.listContainer}> */}
                     <FlatList
                         showsVerticalScrollIndicator={false}
@@ -79,12 +71,20 @@ export default class Rogue extends Component {
 
 
                 </ImageBackground>
+                <View style={{ position: 'absolute' }}>
+                    <Header title={'Go Rogue'}
+                        onPressAccount={() => this.props.navigation.navigate('Profile')}
+                        onPressLogout={() => alert('hello')}
+                        searchBtnAction={(text) => this.getGoRogueData(text)}
+                        onOpenDrop={(res) => this.setState({ isShowDropDown: res })}
+                    />
+                </View>
                 {youtubeVideoId !== '' &&
                     <View style={{ width: wp(100), position: 'absolute', top: hp(23), }}>
                         <YoutubePlayer
                             videoId={youtubeVideoId}
                         />
-                        <TouchableOpacity style={{ width: 30, height: 30, position: 'absolute', right: wp(4) - 15, top: -15, alignItems: 'center', }}
+                        <TouchableOpacity style={{ width: 30, height: 30, position: 'absolute', right: wp(6) - 15, top: -25, alignItems: 'center', padding:2 }}
                             onPress={() => this.setState({ youtubeVideoId: '' })}
                         >
                             <Image source={delete_icon} style={{ width: 30, height: 30, resizeMode: 'contain', tintColor: CLR_PRIMARY }} />
@@ -116,8 +116,7 @@ export default class Rogue extends Component {
         body.append("content_id", item.id);
         console.log('get value---------', body);
 
-        let url = 'https://theriphy.myfileshosting.com/api/rogue-access-count'
-        API.postApi(url, body, this.successUpdateResponse, this.failureResponse);
+        API.postApi(API_ROGUE_ACCESS_COUNT, body, this.successUpdateResponse, this.failureResponse);
     }
 
     successUpdateResponse = (response) => {
@@ -171,7 +170,7 @@ export default class Rogue extends Component {
     }
     getGoRogueData = (text) => {
         this.setState({ loading: true, searchText: text })
-        let url = 'https://theriphy.myfileshosting.com/api/go-rogue?search_title=' + text
+        let url = 'https://www.theriphy.com/api/go-rogue?search_title=' + text
         console.log('get iamge------', url)
         API.getApi(url, this.successRogueResponse, this.failureResponse);
     }
@@ -185,16 +184,16 @@ export default class Rogue extends Component {
 
                 const data = JSON.parse(JSON.stringify(item).replace(/\:null/gi, "\:\"\""))
 
-                // data.relaxation_audio = 'https://theriphy.myfileshosting.com/' + data.file_path + data.relaxation_audio
+                // data.relaxation_audio = 'https://www.theriphy.com/' + data.file_path + data.relaxation_audio
                 // console.log('get image path=======..........>>>>>', data.file_path);
 
                 if (data.icon_file_path.length > 4 && data.icon_file_name.length > 4) {
-                    data.icon_file_path = 'https://theriphy.myfileshosting.com/public/' + data.icon_file_path + data.icon_file_name
+                    data.icon_file_path = 'https://www.theriphy.com/public/' + data.icon_file_path + data.icon_file_name
                 } else {
                     data.icon_file_path = ''
                 }
                 if (data.file_type === 'text' || data.file_type === 'jpg' || data.file_type === 'jpeg' || data.file_type === 'png' || data.file_type === 'xlsx' || data.file_type === 'txt' || data.file_type === 'pdf' || data.file_type === 'docx' || data.file_type === 'gif' || data.file_type === 'xls') {
-                    data.file_path = 'https://theriphy.myfileshosting.com/public/' + data.file_path + data.file_name
+                    data.file_path = 'https://www.theriphy.com/public/' + data.file_path + data.file_name
                     // console.log('get image path=======', data.file_path);
                 }
                 updatedArray.push(data)
@@ -204,16 +203,16 @@ export default class Rogue extends Component {
 
                 const data = JSON.parse(JSON.stringify(item).replace(/\:null/gi, "\:\"\""))
 
-                // data.relaxation_audio = 'https://theriphy.myfileshosting.com/' + data.file_path + data.relaxation_audio
+                // data.relaxation_audio = 'https://www.theriphy.com/' + data.file_path + data.relaxation_audio
                 // console.log('get image path=======..........>>>>>', data.file_path);
 
                 if (data.icon_file_path.length > 4 && data.icon_file_name.length > 4) {
-                    data.icon_file_path = 'https://theriphy.myfileshosting.com/public/' + data.icon_file_path + data.icon_file_name
+                    data.icon_file_path = 'https://www.theriphy.com/public/' + data.icon_file_path + data.icon_file_name
                 } else {
                     data.icon_file_path = ''
                 }
                 if (data.file_type === 'text' || data.file_type === 'jpg' || data.file_type === 'jpeg' || data.file_type === 'png' || data.file_type === 'xlsx' || data.file_type === 'txt' || data.file_type === 'pdf' || data.file_type === 'docx' || data.file_type === 'xls' || data.file_type === 'gif') {
-                    data.file_path = 'https://theriphy.myfileshosting.com/public/' + data.file_path + data.file_name
+                    data.file_path = 'https://www.theriphy.com/public/' + data.file_path + data.file_name
                     // console.log('get image path=======', data.file_path);
                 }
                 index == 0 ? updatedArray.push({ file_type: 'custom', title: 'Most Popular' }) : ''

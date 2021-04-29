@@ -65,7 +65,7 @@ export default function AudioPlayer(props) {
             }
 
             // if (SoundPlayer !== null) {
-            //     // SoundPlayer.playUrl('https://theriphy.myfileshosting.com/public/images/admin/Chithiyaan%20%20Official%20Remix%20-(Mr-Jatt.com).mp3')
+            //     // SoundPlayer.playUrl('https://www.theriphy.com/public/images/admin/Chithiyaan%20%20Official%20Remix%20-(Mr-Jatt.com).mp3')
             //     SoundPlayer.playUrl(encodeURI(props.audioUri))
             //     setPlayerState(!isPlay)
             // }

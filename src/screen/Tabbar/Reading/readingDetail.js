@@ -10,6 +10,7 @@ import moment from 'moment'
 import { WebView } from 'react-native-webview';
 import FileViewer from 'react-native-file-viewer';
 import AutoHeightWebView from 'react-native-autoheight-webview'
+import NetInfo  from "@react-native-community/netinfo";
 
 
 export default class readingDetail extends Component {
@@ -20,6 +21,11 @@ export default class readingDetail extends Component {
             loading: false,
             heightData: 0
         }
+    }
+
+    componentDidMount() {
+      
+        // console.log('get info data', netInfo)
     }
 
 
@@ -67,7 +73,6 @@ export default class readingDetail extends Component {
                     {(file_type === "docx" || file_type === "txt" || file_type === "xlsx" || file_type === "pdf") &&
                         <View style={{ ...styles.listContainer, }}>
                             <View style={{ width: '100%', flexDirection: 'row', borderBottomColor: CLR_LIGHT_LIGHT_GRAY, borderBottomWidth: 1.0 }}>
-                                {/* <View style={{ flexDirection: 'row' }}> */}
                                 <Image style={styles.topicImage} source={icon_file_path === '' ? images : { uri: icon_file_path }} />
                                 <View style={{ marginTop: 10, color: CLR_DARKGREY }}>
                                     <View style={{ flexDirection: 'row', }}>
@@ -81,8 +86,6 @@ export default class readingDetail extends Component {
                                         <Text style={{ color: CLR_DARKGREY, fontSize: wp(3.8) }} numberOfLines={2} >{tags}</Text>
                                     </View>
                                 </View>
-                                {/* </View> */}
-
                             </View>
 
 
@@ -110,10 +113,12 @@ export default class readingDetail extends Component {
                                 // onLoad={() => this.setState({ loading: false })}
                                 onLoadEnd={(res) => loading ? this.setState({ loading: false }) : WebViewRef.reload()}
                                 onLoadStart={() => this.setState({ loading: true })}
-                                contentMode={'mobile'}
+                                // contentMode={'mobile'}
+                                // bounces = {false}
                                 // startInLoadingState={true}
                                 // injectedJavaScript={`const meta = document.createElement('meta'); meta.setAttribute('content', 'width=device-width, initial-scale=0.5, maximum-scale=0.5, user-scalable=0'); meta.setAttribute('name', 'viewport'); document.getElementsByTagName('head')[0].appendChild(meta); `}
-                                scalesPageToFit={false}
+                                scalesPageToFit={true}
+                                scrollEnabled
                             />
                             {/* } */}
 
@@ -158,7 +163,7 @@ export default class readingDetail extends Component {
                         onPressAccount={() => this.props.navigation.navigate('Profile')}
                         onPressLogout={() => alert('hello')}
                         isBack={true}
-                        hideSearch = {true}
+                        hideSearch={true}
                         onPressBack={() => this.props.navigation.goBack()}
                     />
                 </View>

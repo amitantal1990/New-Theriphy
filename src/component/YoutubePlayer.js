@@ -36,10 +36,10 @@ import { wp, hp, } from '../utility'
 
 export default function YoutubePlayer(props) {
     return (
-        <View style = {{marginLeft: wp(4), width: wp(92), backgroundColor: '#00000060', borderRadius: 10, overflow: 'hidden'}}>
+        <View style = {{marginLeft: wp(4), width: wp(90), backgroundColor: '#00000060', borderRadius: 10, overflow: 'hidden'}}>
             <Youtube
-                height={wp(51.8)}
-                width = {wp(92)}
+                height={wp(50.4)}
+                width = {wp(90)}
                 play={true}
                 videoId={props.videoId}
                 onError = {(e) => console.log('get error',e)}

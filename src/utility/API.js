@@ -63,6 +63,7 @@ var ApiCalling = {
     postApiWithoutHeader: async (urlStr, params, successCallback, errorCallback) => {
         axiosInstance.post(urlStr, params)
             .then((response) => {
+                
                 successCallback(response);
             })
             .catch((error) => {

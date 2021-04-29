@@ -99,10 +99,10 @@ export default class HomeDetail extends Component {
                                 onLoadEnd={(res) => loading ? this.setState({ loading: false }) : WebViewRef.reload()}
 
                                 onLoadStart={() => this.setState({ loading: true })}
-                                contentMode={'mobile'}
-                                startInLoadingState={true}
+                                // contentMode={'mobile'}
+                                // startInLoadingState={true}
                                 // injectedJavaScript={`const meta = document.createElement('meta'); meta.setAttribute('content', 'width=device-width, initial-scale=0.5, maximum-scale=0.5, user-scalable=0'); meta.setAttribute('name', 'viewport'); document.getElementsByTagName('head')[0].appendChild(meta); `}
-                                scalesPageToFit={false}
+                                // scalesPageToFit={false}
                             />
                             {/* } */}
                         </View>
@@ -146,8 +146,8 @@ export default class HomeDetail extends Component {
                     }
 
                     {/* <WebView
-                    // source={{ uri: 'https://view.officeapps.live.com/op/embed.aspx?src=https://theriphy.myfileshosting.com/public/therapist/2/xlsx/1612943970xlsx/Financial%20Sample.xlsx&embedded=true'}}
-                    source={{ uri: 'http://docs.google.com/gview?embedded=true&url=https://theriphy.myfileshosting.com/public/therapist/2/xlsx/1612943970xlsx/Financial%20Sample.xlsx' }}
+                    // source={{ uri: 'https://view.officeapps.live.com/op/embed.aspx?src=https://www.theriphy.com/public/therapist/2/xlsx/1612943970xlsx/Financial%20Sample.xlsx&embedded=true'}}
+                    source={{ uri: 'http://docs.google.com/gview?embedded=true&url=https://www.theriphy.com/public/therapist/2/xlsx/1612943970xlsx/Financial%20Sample.xlsx' }}
                     // source={{ uri: 'https://view.officeapps.live.com/op/embed.aspx?src=' + file_path + '&embedded=true' }}
                     style={{ width: wp(88), height: hp(100) }}
                     automaticallyAdjustContentInsets={false}

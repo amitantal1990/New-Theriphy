@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, Alert, View, ImageBackground, TouchableOpacity, Image, ScrollView, FlatList } from 'react-native'
+import { Text, StyleSheet, Alert, View, ImageBackground, TouchableOpacity, Image, ScrollView, FlatList, DeviceEventEmitter } from 'react-native'
 import Header from '../../../component/Header'
 import { bg_icon, gallery_icon, delete_icon } from '../../../utility/ImageConstant';
 import Loader from '../../../component/Loader'
@@ -21,11 +21,17 @@ export default class Motivation extends Component {
             motivationList: [],
             isUploadImage: false,
             categoryList: [],
-            upload_panding: 0
+            upload_panding: 0,
+            isShowDropDown: false,
         }
     }
     componentDidMount() {
         // let userData = await retrieveData('user_data')
+        this._unsubscribe = this.props.navigation.addListener('focus', () => {
+            if (this.state.isShowDropDown) {
+                DeviceEventEmitter.emit('updateUser', { data: 'dropDown' })
+            }
+        })
         this.getMotivationalData()
     }
     showInfo = () => {
@@ -47,15 +53,9 @@ export default class Motivation extends Component {
     render() {
         const { motivationList, isUploadImage, categoryList, loading, upload_panding } = this.state
         return (
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, paddingTop: hp(21) }}>
                 <ImageBackground source={bg_icon} style={styles.backgroundImageView}>
-                    <Header title={'Motivation'}
-                        onPressAccount={() => this.props.navigation.navigate('Profile')}
-                        onPressLogout={() => alert('hello')}
-                        onPressInfo={() => this.showInfo()}
-                        hideSearch={true}
-                        onPressUpload = {() => this.uploadImageData()}
-                    />
+
                     {/* <View style={{ width: wp(100), height: 44, justifyContent: 'center', alignItems: 'center', marginTop: wp(1.5) }}>
                         <TouchableOpacity>
                             <Text style={{ color: CLR_PRIMARY, fontSize: wp(4.2) }}>Photo</Text>
@@ -118,6 +118,17 @@ export default class Motivation extends Component {
                         </TouchableOpacity>
                     </View> */}
                 </ImageBackground>
+                <View style={{ position: 'absolute' }}>
+                    <Header title={'Motivation'}
+                        onPressAccount={() => this.props.navigation.navigate('Profile')}
+                        onPressLogout={() => alert('hello')}
+                        onPressInfo={() => this.showInfo()}
+                        onOpenDrop = {(res) =>  this.setState({isShowDropDown: res})}
+                        hideSearch={true}
+                        onPressUpload={() => this.uploadImageData()}
+                    />
+                </View>
+
             </View>
         )
     }
@@ -187,7 +198,7 @@ export default class Motivation extends Component {
                 <TouchableOpacity style={{ width: '100%', height: '100%' }}
                     onPress={() => this.props.navigation.navigate('ImageDetail', { data: this.state.motivationList[item.item.index], selectedIndex: item.index })}
                 >
-                    <Image source={{ uri: item.item.uri }} style={{ width: '100%', height: '100%'}} />
+                    <Image source={{ uri: item.item.uri }} style={{ width: '100%', height: '100%' }} />
                 </TouchableOpacity>
                 <TouchableOpacity style={{ width: 32, height: 32, position: 'absolute', top: 0, right: 0 }}
                     onPress={() => this.deleteImage(item.item)}>
@@ -290,14 +301,14 @@ export default class Motivation extends Component {
                 let newObj = item.map((value, key) => {
                     console.log('get image ----', value);
                     let obj = {
-                        uri: 'https://theriphy.myfileshosting.com/public/' + value.file_path + value.file_name,
+                        uri: 'https://www.theriphy.com/public/' + value.file_path + value.file_name,
                         id: value.id,
                         index
                     }
                     return obj
                 })
                 console.log('get item data----------------', newObj)
-                //   item.file_path = 'https://theriphy.myfileshosting.com/public/' + item.file_path + item.file_name;
+                //   item.file_path = 'https://www.theriphy.com/public/' + item.file_path + item.file_name;
                 // //   console.log('get item data----------------',item);
                 return [...newObj];
             });
@@ -309,7 +320,7 @@ export default class Motivation extends Component {
             console.log('get image data----------------', cat);
             // let data = response.data.data.map((item, index) => {
             //     let obje = {
-            //         uri: 'https://theriphy.myfileshosting.com/public/' + item.file_path + item.file_name,
+            //         uri: 'https://www.theriphy.com/public/' + item.file_path + item.file_name,
             //         id: item.id
             //     }
             //     return obje

@@ -20,7 +20,21 @@ export default class ChangePassword extends Component {
             old_password: '',
             new_password: '',
             confirm_password: '',
+            isShowDropDown: false
         }
+    }
+    componentDidMount() {
+        this._unsubscribe = this.props.navigation.addListener('focus', () => {
+            if (this.state.isShowDropDown) {
+                DeviceEventEmitter.emit('updateUser', { data: 'dropDown' })
+            }
+            this.setState({isShowDropDown: false })
+        });
+    }
+
+    componentWillUnmount() {
+        this._unsubscribe();
+        // this.setState({youtubeVideoId: ''})
     }
 
     render() {
@@ -36,7 +50,7 @@ export default class ChangePassword extends Component {
                                 <TextInput style={styles.inputView}
                                     autoCorrect={false}
                                     keyboardType={'default'}
-                                    autoCapitalize= 'none'
+                                    autoCapitalize='none'
                                     placeholder={'Old Password'}
                                     placeholderTextColor={CLR_PLACEHOLDER}
                                     maxLength={15}
@@ -91,6 +105,7 @@ export default class ChangePassword extends Component {
                         isBack={true}
                         hideSearch={true}
                         onPressBack={() => this.props.navigation.goBack()}
+                        onOpenDrop = {(res) =>  this.setState({isShowDropDown: res})}
                     />
                 </View>
             </View>
@@ -120,7 +135,7 @@ export default class ChangePassword extends Component {
             body.append("current_password", old_password);
             body.append("new_password", new_password);
             body.append("confirm_password", confirm_password);
-            
+
             console.log('get body', body);
 
             this.setState({ loading: true })
@@ -137,7 +152,7 @@ export default class ChangePassword extends Component {
                 Toast.show(response.data.message)
                 // this.props.navigation.goBack()
             }, 100)
-           
+
         } else {
             setTimeout(() => {
                 Toast.show(response.data.message)
@@ -202,7 +217,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: hp(4),
         shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.6,
+        shadowOpacity: Platform.OS === 'ios' ? 0.3 : 0.6,
         shadowRadius: wp(5),
         elevation: 5,
         shadowColor: CLR_PRIMARY

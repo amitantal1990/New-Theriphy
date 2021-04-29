@@ -32,6 +32,7 @@ export default function AudioPlayer(props) {
     // const [songIndexCopy, setSongIndexCopy] = useState(props.route.params.index);
     const [audioData, setAudioData] = useState([])
     const [isLoader, setLoaderUpdate] = useState(false)
+    const [isShowDropDown, setShowDropDown] = useState(false)
 
     // const [imageScroll, setImageValue] = useState(false)
 
@@ -49,6 +50,10 @@ export default function AudioPlayer(props) {
 
     function updateAudio() {
         DeviceEventEmitter.emit('stopAudio')
+        // alert(isShowDropDown)
+        // if (isShowDropDown) {
+            DeviceEventEmitter.emit('updateUser', { data: 'dropDown' })
+        // }
     }
 
     useEffect(() => {
@@ -190,7 +195,7 @@ export default function AudioPlayer(props) {
                     isBack={true}
                     hideSearch = {true}
                     onPressBack={() => props.navigation.goBack()}
-                // onPressBack={() => this.props.navigation.goBack()}
+                    onOpenDrop = {(res) => setShowDropDown(res)} 
                 />
             </View>
 

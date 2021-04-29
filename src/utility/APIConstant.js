@@ -1,5 +1,6 @@
 
-export const BASE_URL = "https://theriphy.myfileshosting.com/"
+// export const BASE_URL = "https://www.theriphy.com/"
+export const BASE_URL = "https://www.theriphy.com/"
 
 export const SUCCESS_STATUS = 200
 export const API_LOGIN = BASE_URL + "api/login"
@@ -18,7 +19,11 @@ export const API_UPLOAD_MOTIVATION_IMAGE = BASE_URL + "api/add-motivation-aff"
 export const API_VIEW_MOTIVATION = BASE_URL + "api/view-motivation-aff"
 export const API_DELETE_MOTIVATION_IMAGE = BASE_URL + "api/delete-motivation-aff"
 export const API_EXIST_FB_GL = BASE_URL + "/checkExistingSocialAccount"
-
+export const API_MARK_COMPLETE_HOME = BASE_URL + "api/view-mark-as-completed"
+export const API_GET_HOME_CONTENT = BASE_URL + "api/get-homework-content?therapist_id="
+export const API_GET_HOME_SEARCH_CONTENT = BASE_URL + "api/get-homework-content?search_title="
+export const API_READING_ACCESS_COUNT = BASE_URL + "api/reading-access-count"
+export const API_ROGUE_ACCESS_COUNT = BASE_URL + "api/rogue-access-count"
 
 
 

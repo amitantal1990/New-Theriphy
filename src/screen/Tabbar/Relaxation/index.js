@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, FlatList, ImageBackground, TouchableOpacity, Image, RefreshControl } from 'react-native'
+import { Text, StyleSheet, View, FlatList, ImageBackground,DeviceEventEmitter, TouchableOpacity, Image, RefreshControl } from 'react-native'
 import Header from '../../../component/Header'
 import Loader from '../../../component/Loader'
 import Toast from 'react-native-simple-toast';
@@ -20,12 +20,18 @@ export default class Relaxation extends Component {
             loading: false,
             relaxationList: [],
             isFetching: false,
-            searchText: ''
+            searchText: '',
+            isShowDropDown: false,
         }
     }
     componentDidMount() {
         this.setState({ loading: true })
         this.getRelaxationData()
+        this._unsubscribe = this.props.navigation.addListener('focus', () => {
+            if (this.state.isShowDropDown) {
+                DeviceEventEmitter.emit('updateUser', { data: 'dropDown' })
+            }
+        })
     }
     onRefresh = () => {
         this.setState({ isFetching: true, searchText: '' }, () => {
@@ -36,15 +42,10 @@ export default class Relaxation extends Component {
     render() {
         const { loading, relaxationList, isFetching, searchText } = this.state
         return (
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, paddingTop: hp(21)}}>
                 <ImageBackground source={bg_icon} style={styles.backgroundImageView}>
-                    <Header title={'Relaxation'}
-                        onPressAccount={() => this.props.navigation.navigate('Profile')}
-                        onPressLogout={() => alert('hello')}
-                        searchBtnAction={(text) => this.searchBtnAction(text)}
-                        searchText = {searchText}
-                    />
-                    <Loader loading={loading} />
+
+                     <Loader loading={loading} />
                     {/* <Content style={{ flex: 1 }}> */}
                     <FlatList
                         style={{ marginTop: wp(2), alignSelf: 'center' }}
@@ -60,6 +61,15 @@ export default class Relaxation extends Component {
                     />
                     {/* </Content> */}
                 </ImageBackground>
+                <View style={{ position: 'absolute' }}>
+                    <Header title={'Meditation'}
+                        onPressAccount={() => this.props.navigation.navigate('Profile')}
+                        onPressLogout={() => alert('hello')}
+                        searchBtnAction={(text) => this.searchBtnAction(text)}
+                        onOpenDrop = {(res) =>  this.setState({isShowDropDown: res})}
+                        searchText={searchText}
+                    />
+                </View>
             </View>
         )
     }
@@ -109,8 +119,8 @@ export default class Relaxation extends Component {
             let updatedArray = []
             response.data.relaxations.map((item, index) => {
                 const data = JSON.parse(JSON.stringify(item).replace(/\:null/gi, "\:\"\""))
-                data.relaxation_audio = 'https://theriphy.myfileshosting.com/' + data.file_path + data.relaxation_audio
-                data.file_path = 'https://theriphy.myfileshosting.com/' + data.file_path + data.file_name
+                data.relaxation_audio = 'https://www.theriphy.com/' + data.file_path + data.relaxation_audio
+                data.file_path = 'https://www.theriphy.com/' + data.file_path + data.file_name
                 updatedArray.push(data)
             })
             console.log('get response-----', updatedArray)
@@ -128,8 +138,8 @@ export default class Relaxation extends Component {
             let updatedArray = []
             response.data.search_data.map((item, index) => {
                 const data = JSON.parse(JSON.stringify(item).replace(/\:null/gi, "\:\"\""))
-                data.relaxation_audio = 'https://theriphy.myfileshosting.com/' + data.file_path + data.relaxation_audio
-                data.file_path = 'https://theriphy.myfileshosting.com/' + data.file_path + data.file_name
+                data.relaxation_audio = 'https://www.theriphy.com/' + data.file_path + data.relaxation_audio
+                data.file_path = 'https://www.theriphy.com/' + data.file_path + data.file_name
                 updatedArray.push(data)
             })
             this.setState({ relaxationList: updatedArray })

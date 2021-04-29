@@ -9,6 +9,7 @@ import Sound from 'react-native-sound';
 import API from '../utility/API';
 import { API_RELAXATION_ACCESS, SUCCESS_STATUS } from '../utility/APIConstant'
 import Loader from './Loader'
+import NetInfo from "@react-native-community/netinfo";
 
 var whoosh = undefined
 export default class PlayerController extends Component {
@@ -38,34 +39,46 @@ export default class PlayerController extends Component {
     }
     componentDidMount() {
 
-        // this.setState({totalTimer: timer})
         AppState.addEventListener('change', this._handleAppStateChange);
         DeviceEventEmitter.addListener('stopAudio', () => {
-            console.log('addListener -----', whoosh)
+            // console.log('addListener -----', whoosh)
             if (whoosh !== undefined) {
                 this.setState({ isInitialize: true, sliderValue: 0, totalTimer: '00:00', updateTimer: '00:00', isPlay: false })
                 clearInterval(this.timeInterval)
                 Platform.OS === 'ios' ? whoosh.stop() : whoosh.reset()
             }
         })
+
+        this.unsubscribe = NetInfo.addEventListener(state => {
+            // console.log("Connection type", state.type);
+            // console.log("Is connected?============", state.isConnected);
+            // alert(state.isConnected)
+            if (!state.isConnected && this.state.loading) {
+                this.setState({ loading: false })
+                if (whoosh !== undefined) {
+                    clearInterval(this.timeInterval)
+                    Platform.OS === 'ios' ? whoosh.stop() : whoosh.reset()
+                }
+            }
+        });
     }
     componentWillReceiveProps(props) {
-        console.log('get props value', props);
+        // console.log('get props value', props);
         if (props.audioObj !== this.state.currentIndex) {
-            console.log('get props value ========', props);
-            console.log('componentWillReceiveProps -----', whoosh)
-            this.setState({ 
-                totalTimer: this.getTimeValue(props.audioTime), 
-                currentIndex: props.audioObj, 
-                isPlay: false ,
+            // console.log('get props value ========', props);
+            // console.log('componentWillReceiveProps -----', whoosh)
+            this.setState({
+                totalTimer: this.getTimeValue(props.audioTime),
+                currentIndex: props.audioObj,
+                isPlay: false,
                 isInitialize: true,
                 sliderValue: 0,
                 updateTimer: '00:00',
             })
             if (whoosh !== undefined) {
                 clearInterval(this.timeInterval)
-               Platform.OS === 'ios' ? whoosh.stop() : whoosh.reset()
-            } 
+                Platform.OS === 'ios' ? whoosh.stop() : whoosh.reset()
+            }
         }
     }
     componentWillUpdate() {
@@ -73,7 +86,7 @@ export default class PlayerController extends Component {
     }
 
     componentWillUnmount() {
-
+        // this.unsubscribe()
         AppState.removeEventListener('change', this._handleAppStateChange);
         console.log('componentWillUnmount -----', whoosh)
         if (whoosh !== undefined) {
@@ -89,24 +102,24 @@ export default class PlayerController extends Component {
         Sound.setCategory('Playback');
         //alert(this.props.audioUri)
         if (isInitialize) {
-             //alert(this.props.audioUri)
-             const audioUrl = encodeURI(this.props.audioUri)
-             this.setState({loading: true})
-             console.log('get sudio ----', audioUrl)
+            //alert(this.props.audioUri)
+            const audioUrl = encodeURI(this.props.audioUri)
+            this.setState({ loading: true })
+            // console.log('get sudio ----', audioUrl)
             whoosh = new Sound(audioUrl, null, (error) => {
                 if (error) {
-                    console.log('failed to load the sound', error);
+                    // console.log('failed to load the sound', error);
                     return;
                 }
-               
+
                 // loaded successfully
-                console.log('duration in seconds: ' + whoosh.getDuration() + 'number of channels: ' + whoosh.getNumberOfChannels());
+                // console.log('duration in seconds: ' + whoosh.getDuration() + 'number of channels: ' + whoosh.getNumberOfChannels());
                 const min = this.changeValue(Math.floor(whoosh.getDuration() / 60).toFixed(0))
                 const sec = this.changeValue((whoosh.getDuration() % 60).toFixed(0))
                 const latestValue = min + ':' + sec
-                console.log('get value', latestValue);
+                // console.log('get value', latestValue);
                 this.props.OnPressPlay()
-                this.setState({loading: false, isPlay: true, isInitialize: false, audioDuration: whoosh.getDuration(), totalTimer: latestValue })
+                this.setState({ loading: false, isPlay: true, isInitialize: false, audioDuration: whoosh.getDuration(), totalTimer: latestValue })
                 this.updateRelaxationCount()
                 // Play the sound with an onEnd callback
                 whoosh.play((success) => {
@@ -114,14 +127,14 @@ export default class PlayerController extends Component {
                         this.setState({ isInitialize: true, sliderValue: 0, updateTimer: '00:00', isPlay: false })
                         clearInterval(this.timeInterval)
                         whoosh.reset()
-                        console.log('successfully finished playing');
+                        // console.log('successfully finished playing');
                     } else {
-                        console.log('playback failed due to audio decoding errors');
+                        // console.log('playback failed due to audio decoding errors');
                     }
                 });
                 this.timeInterval = setInterval(() => {
                     whoosh.getCurrentTime((time, playing) => {
-                        console.log('get timer value', time, 'is--', playing)
+                        // console.log('get timer value', time, 'is--', playing)
                         if (playing) {
                             const min = this.changeValue(Math.floor(time / 60).toFixed(0))
                             const sec = this.changeValue((time % 60).toFixed(0))
@@ -206,7 +219,7 @@ export default class PlayerController extends Component {
                         <Image source={next_icon} style={{ width: wp(5), height: wp(5), resizeMode: 'contain' }} />
                     </TouchableOpacity>
                 </View>
-                <Loader loading = {loading}/>
+                <Loader loading={loading} />
             </View>
         )
     }
@@ -220,7 +233,7 @@ export default class PlayerController extends Component {
     }
 
     updateAudioTime = (value) => {
-        console.log('get value', value)
+        // console.log('get value', value)
         whoosh.setCurrentTime(value)
         const min = this.changeValue(Math.floor(value / 60).toFixed(0))
         const sec = this.changeValue((value % 60).toFixed(0))
@@ -244,7 +257,7 @@ export default class PlayerController extends Component {
     //         // }
 
     //         // if (SoundPlayer !== null) {
-    //         //     // SoundPlayer.playUrl('https://theriphy.myfileshosting.com/public/images/admin/Chithiyaan%20%20Official%20Remix%20-(Mr-Jatt.com).mp3')
+    //         //     // SoundPlayer.playUrl('https://www.theriphy.com/public/images/admin/Chithiyaan%20%20Official%20Remix%20-(Mr-Jatt.com).mp3')
     //         //     SoundPlayer.playUrl(encodeURI(props.audioUri))
     //         //     setPlayerState(!isPlay)
     //         // }
@@ -257,17 +270,16 @@ export default class PlayerController extends Component {
     updateRelaxationCount = async () => {
         // user_data
         let userData = await retrieveData('user_data')
-        console.log('get userData', userData)
-        console.log('get userData ------', this.state.currentIndex)
+        // console.log('get userData', userData, this.props.audioObj)
+        // console.log('get userData ------', this.state.currentIndex)
         let body = new FormData()
         body.append("user_id", userData.id);
-        body.append("relaxation_id", this.state.currentIndex.id);
+        body.append("relaxation_id", this.props.audioObj.id);
         console.log('get body', body)
         API.postApi(API_RELAXATION_ACCESS, body, this.successRelaxCheckResponse, this.failureResponse);
     }
     successRelaxCheckResponse = (response) => {
-        console.log('get relax response-------', response);
-        this.setState({ loading: false, isFetching: false })
+        // console.log('get relax response-------', response);
         if (SUCCESS_STATUS == response.status) {
 
         } else {

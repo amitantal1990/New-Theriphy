@@ -19,25 +19,28 @@ export default function Header(props) {
     const [profileImage, setProfile] = useState('')
     const [searchText, setSearchText] = useState(props.searchText)
     const [animation, setstate] = useState(new Animated.Value(0))
+
+
     const getUserData = async () => {
         let userData = await retrieveData('user_data')
         setProfile(userData.imageUri)
     }
+    // alert(props.isDrop)
     useEffect(() => {
         getUserData()
         DeviceEventEmitter.addListener('updateUser', (data) => {
-            console.log('-----------xxxxxxx----------------', data.data.imageUri);
-            const image = data.data.imageUri
-            // console.log('image data------->>', image)
-            // if(image.lenght > 10){
-            setProfile(image)
-            // }
-
+            if (data.data === 'dropDown') {
+                setDropDown(false)
+            } else {
+                const image = data.data.imageUri
+                setProfile(image)
+            }
         })
-    }, [profileImage, isLogout])
+    }, [profileImage, isLogout, active])
     const startAnimation = () => {
         if (!active) {
             setDropDown(!active)
+            props.onOpenDrop(!active)
             Animated.timing(animation, {
                 toValue: 90,
                 duration: 500,
@@ -50,6 +53,7 @@ export default function Header(props) {
             }).start(() => { });
             setTimeout(() => {
                 setDropDown(!active)
+                props.onOpenDrop(!active)
             }, 200);
         }
     }
@@ -65,6 +69,8 @@ export default function Header(props) {
         startAnimation()
     }
     const clickProfileOption = () => {
+        setDropDown(!active)
+        props.onOpenDrop(!active)
         props.onPressAccount()
         startAnimation()
     }
@@ -94,9 +100,16 @@ export default function Header(props) {
         setLoading(false)
         console.log('get error value', error);
     }
-
+    const updateDropDown = () => {
+        if(active){
+            setDropDown(!active)
+            props.onOpenDrop(!active)
+        }
+       
+    }
+    // alert(active)
     return (
-        <View style={{ width: wp(100), height: hp(21) }}>
+        <TouchableOpacity style={{ width: wp(100), height: active ? hp(100) : hp(21) }} activeOpacity={1.0} onPress={() => updateDropDown()}>
             <View style={[styles.container, { height: Platform.OS === 'ios' ? props.isBack ? hp(13.3) : hp(21) : props.isBack ? hp(13.5) : hp(20.5) }]}>
                 <StatusBar barStyle="dark-content" backgroundColor={CLR_PRIMARY} />
                 <View style={styles.headerTitleContainer}>
@@ -186,7 +199,7 @@ export default function Header(props) {
                     </TouchableOpacity>
                 </Animated.View>
             }
-        </View>
+        </TouchableOpacity>
     )
 }
 

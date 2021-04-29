@@ -7,7 +7,7 @@ import InputView from '../../component/InputView'
 import Loader from '../../component/Loader'
 import Toast from 'react-native-simple-toast';
 import API from '../../utility/API';
-import { API_LOGIN, SUCCESS_STATUS, API_GET_USER_DATA } from '../../utility/APIConstant';
+import { API_LOGIN, SUCCESS_STATUS, API_GET_USER_DATA , BASE_URL} from '../../utility/APIConstant';
 import { emailValidation, wp, hp, storeData } from '../../utility';
 import { hint_email, hint_password_length, hint_password, hint_valid_email } from '../../utility/Constant';
 // _youTubeRef = React.createRef();
@@ -18,8 +18,8 @@ export default class Login extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            user_name: 'netqom_patient100@mailinator.com',
-            password: 'justdoit@100',
+            user_name: '',
+            password: '',
             loading: false,
             isNext: false,
             scrollMar: 0,
@@ -154,18 +154,18 @@ export default class Login extends Component {
         if (SUCCESS_STATUS == response.data.status_code) {
             let data = JSON.parse(JSON.stringify(response.data.data).replace(/\:null/gi, "\:\"\""))
             console.log('get data from', data)
-
-            let imageUrl = data.image_path !== '' ? 'https://theriphy.myfileshosting.com/' + data.image_path + '/' + data.image : ''
+            let imageUrl = data.image !== "" ? BASE_URL + data.image_path + '/' + data.image : ''
             let obje = {
                 imageUri: imageUrl,
                 user_name: data.first_name,
                 phone_number: data.phone_no,
                 email_address: data.email,
                 date_birth: data.dob,
-                gender: data.gender,
+                gender: data.gender, 
                 id: data.id,
                 therapist_id: data.therapist_id
             }
+            console.log('get data /////// from', imageUrl)
             setTimeout(async () => {
                 await storeData('isLogin', true)
                 await storeData('token', response.data.access_token)

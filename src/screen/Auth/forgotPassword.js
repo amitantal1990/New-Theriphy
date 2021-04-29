@@ -20,7 +20,7 @@ export default class forgotPassword extends Component {
         }
     }
     render() {
-        
+
         return (
             <View style={{ flex: 1 }}>
                 <Loader loading={this.state.loading} />
@@ -38,7 +38,7 @@ export default class forgotPassword extends Component {
                                 </View>
                                 <TextInput style={{ height: '100%', fontSize: wp(4.3), width: '86%' }}
                                     placeholder={'Email Address'}
-                                    placeholderTextColor = {CLR_PLACEHOLDER}
+                                    placeholderTextColor={CLR_PLACEHOLDER}
                                     autoCapitalize={'none'}
                                     returnKeyType={"next"}
                                     onChangeText={text => this.setState({ email: text })}
@@ -154,7 +154,7 @@ const styles = StyleSheet.create(
             marginTop: hp(3),
             marginBottom: 3,
             shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.6,
+            shadowOpacity: Platform.OS === 'ios' ? 0.3 : 0.6,
             shadowRadius: wp(5),
             elevation: 15,
             shadowColor: CLR_PRIMARY

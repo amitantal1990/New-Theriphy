@@ -10,7 +10,7 @@ import { CLR_PRIMARY, CLR_LIGHT_LIGHT_GRAY, CLR_LIGHT_GRAY } from '../../utility
 import Loader from '../../component/Loader'
 import Toast from 'react-native-simple-toast';
 import API from '../../utility/API';
-import { API_UPDATE_PROFILE, SUCCESS_STATUS, API_GET_USER_DATA, API_UPLOAD_MOTIVATION_IMAGE } from '../../utility/APIConstant'
+import { API_UPDATE_PROFILE, SUCCESS_STATUS, API_GET_USER_DATA, API_UPLOAD_MOTIVATION_IMAGE, BASE_URL } from '../../utility/APIConstant'
 import { Content } from 'native-base'
 import DateTimePicker from '@react-native-community/datetimepicker';
 import DatePicker from 'react-native-date-picker'
@@ -66,7 +66,7 @@ export default class Profile extends Component {
                         imageUri={imageUri}
                         onPressBack={() => this.props.navigation.goBack()}
                     />
-                    <Content style = {{flex: 1}}>
+                    <Content style={{ flex: 1 }}>
                         <View style={styles.inputContainerView}>
                             <InputView source={edit_icon}
                                 inputTitle={'Name'}
@@ -110,7 +110,7 @@ export default class Profile extends Component {
                             <TouchableOpacity style={styles.bottomViewContainer} onPress={() => this.saveDetailAction()}>
                                 <Text style={{ color: 'white', fontSize: wp(5.6) }}>Save Detail</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={{...styles.bottomViewContainer, marginTop: 12 }} onPress={() => this.props.navigation.navigate('ChangePassword')}>
+                            <TouchableOpacity style={{ ...styles.bottomViewContainer, marginTop: 12 }} onPress={() => this.props.navigation.navigate('ChangePassword')}>
                                 <Text style={{ color: 'white', fontSize: wp(5.6) }}>Change Password</Text>
                             </TouchableOpacity>
                         </View>
@@ -216,7 +216,7 @@ export default class Profile extends Component {
             return
         }
 
-        if (!imageUri.includes('https://theriphy.myfileshosting.com/')) {
+        if (imageUri.length > 20) {
             let imageData = {
                 uri: imageUri,
                 width: wp(100),
@@ -226,14 +226,14 @@ export default class Profile extends Component {
             };
             body.append("image", imageData);
         }
-
+        // console.log('get body', imageUri);
         body.append("first_name", user_name);
         body.append("last_name", "Ratra");
         body.append("phone_no", phone_number);
         body.append("gender", gender);
         body.append("dob", date_birth);
         console.log('get body', body);
-
+        
         this.setState({ loading: true })
         API.postApi(API_UPDATE_PROFILE, body, this.successUpdatResponse, this.failureResponse);
     }
@@ -244,7 +244,7 @@ export default class Profile extends Component {
         if (SUCCESS_STATUS == response.status) {
             let data = JSON.parse(JSON.stringify(response.data.data).replace(/\:null/gi, "\:\"\""))
             console.log('get data from', data)
-            let imageUrl = data.image_path !== '' ? 'https://theriphy.myfileshosting.com/' + data.image_path + '/' + data.image : ''
+            let imageUrl = data.image !== '' ? BASE_URL + data.image_path + '/' + data.image : ''
             let obje = {
                 imageUri: imageUrl,
                 user_name: data.first_name,
@@ -253,7 +253,7 @@ export default class Profile extends Component {
                 date_birth: moment(data.dob).format('MM/DD/YYYY'),
                 gender: data.gender,
             }
-            console.log('get profile image -----', obje.imageUri)
+            console.log('get profile image -----', obje)
             this.setState({
                 imageUri: obje.imageUri,
                 user_name: obje.user_name,
@@ -269,13 +269,14 @@ export default class Profile extends Component {
         }
     }
 
-    successUpdatResponse = async (response) => {
+     successUpdatResponse = async (response) => {
         console.log('get update response-------', response);
         this.setState({ loading: false })
         if (SUCCESS_STATUS == response.status) {
             let data = JSON.parse(JSON.stringify(response.data.data).replace(/\:null/gi, "\:\"\""))
+            let imageUrl = data.image !== "" ? BASE_URL + data.image_path + '/' + data.image : ''
             let obje = {
-                imageUri: 'https://theriphy.myfileshosting.com/' + data.image_path + '/' + data.image,
+                imageUri: imageUrl,
                 user_name: data.first_name,
                 phone_number: this.state.phone_number,
                 email_address: this.state.email_address,
@@ -284,7 +285,7 @@ export default class Profile extends Component {
                 id: data.id,
                 therapist_id: data.therapist_id
             }
-            console.log('get update profile image -----', obje.imageUri)
+            console.log('get update profile image -----', obje)
             await storeData('user_data', obje)
             setTimeout(() => {
                 Toast.show(response.data.message)

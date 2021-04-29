@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, Linking, ImageBackground, FlatList, TouchableOpacity, Image, RefreshControl } from 'react-native'
+import { Text, StyleSheet, View, Linking, ImageBackground, FlatList, TouchableOpacity, Image, RefreshControl, DeviceEventEmitter } from 'react-native'
 import Header from '../../../component/Header'
 import { bg_icon, book_icon, delete_icon } from '../../../utility/ImageConstant'
 import Loader from '../../../component/Loader'
 import Toast from 'react-native-simple-toast';
 import API from '../../../utility/API';
 import { wp, hp, retrieveData, youtube_parser } from '../../../utility'
-import { SUCCESS_STATUS, API_GET_READING_DATA } from '../../../utility/APIConstant'
+import { SUCCESS_STATUS, API_GET_READING_DATA, API_READING_ACCESS_COUNT } from '../../../utility/APIConstant'
 import { Content } from 'native-base';
 import { WebView } from 'react-native-webview';
 import YoutubePlayer from '../../../component/YoutubePlayer'
@@ -25,20 +25,25 @@ export default class Reading extends Component {
             searchText: '',
             isFetching: false,
             youtubeVideoId: '',
+            isShowDropDown: false,
         }
     }
     componentDidMount() {
         this._unsubscribe = this.props.navigation.addListener('focus', () => {
             this.setState({ searchText: '' })
             this.getReadingData()
+            if (this.state.isShowDropDown) {
+                DeviceEventEmitter.emit('updateUser', { data: 'dropDown' })
+            }
         });
+        
         this.setState({ loading: true })
         this.getReadingData()
     }
 
     componentWillUnmount() {
         this._unsubscribe();
-        this.setState({youtubeVideoId: ''})
+        this.setState({ youtubeVideoId: '' })
     }
 
     onRefresh = () => {
@@ -50,14 +55,9 @@ export default class Reading extends Component {
     render() {
         const { readingList, loading, searchText, isFetching, youtubeVideoId } = this.state
         return (
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, paddingTop: hp(21) }}>
                 <ImageBackground source={bg_icon} style={styles.backgroundImageView}>
-                    <Header title={'Reading'}
-                        onPressAccount={() => this.props.navigation.navigate('Profile')}
-                        onPressLogout={() => alert('hello')}
-                        searchBtnAction={(text) => this.searchBtnAction(text)}
-                        searchText={searchText}
-                    />
+
                     <Loader loading={loading} />
 
                     {/* <Content style={{ flex: 1 }} contentContainerStyle={{ alignItems: 'center' }}> */}
@@ -81,7 +81,7 @@ export default class Reading extends Component {
                             <YoutubePlayer
                                 videoId={youtubeVideoId}
                             />
-                            <TouchableOpacity style={{ width: 30, height: 30, position: 'absolute', right: wp(4) - 15, top: -15, alignItems: 'center', }}
+                            <TouchableOpacity style={{ width: 30, height: 30, position: 'absolute', right: wp(6) - 15, top: -25, alignItems: 'center', padding:2}}
                                 onPress={() => this.setState({ youtubeVideoId: '' })}
                             >
                                 <Image source={delete_icon} style={{ width: 30, height: 30, resizeMode: 'contain', tintColor: CLR_PRIMARY }} />
@@ -90,6 +90,15 @@ export default class Reading extends Component {
                     }
                     {/* </Content> */}
                 </ImageBackground>
+                <View style={{ position: 'absolute' }}>
+                    <Header title={'Reading'}
+                        onPressAccount={() => this.props.navigation.navigate('Profile')}
+                        onPressLogout={() => alert('hello')}
+                        searchBtnAction={(text) => this.searchBtnAction(text)}
+                        onOpenDrop = {(res) =>  this.setState({isShowDropDown: res})}
+                        searchText={searchText}
+                    />
+                </View>
             </View>
         )
     }
@@ -114,10 +123,7 @@ export default class Reading extends Component {
         let body = new FormData()
         body.append("content_id", item.id);
         console.log('get value---------', body);
-
-        let url = 'https://theriphy.myfileshosting.com/api/reading-access-count'
-        API.postApi(url, body, this.successUpdateResponse, this.failureResponse);
-
+        API.postApi(API_READING_ACCESS_COUNT, body, this.successUpdateResponse, this.failureResponse);
     }
 
     renderReadingItem = (item) => {
@@ -186,13 +192,13 @@ export default class Reading extends Component {
                 const data = JSON.parse(JSON.stringify(item).replace(/\:null/gi, "\:\"\""))
 
                 if (data.icon_file_path.length > 4 && data.icon_file_name.length > 4) {
-                    data.icon_file_path = 'https://theriphy.myfileshosting.com/public/' + data.icon_file_path + data.icon_file_name
+                    data.icon_file_path = 'https://www.theriphy.com/public/' + data.icon_file_path + data.icon_file_name
                 } else {
                     data.icon_file_path = ''
                 }
 
                 if (data.file_type === 'text' || data.file_type === 'jpg' || data.file_type === 'png' || data.file_type === 'xlsx' || data.file_type === 'txt' || data.file_type === 'pdf' || data.file_type === 'docx') {
-                    data.file_path = 'https://theriphy.myfileshosting.com/public/' + data.file_path + data.file_name
+                    data.file_path = 'https://www.theriphy.com/public/' + data.file_path + data.file_name
                     // console.log('get image path=======', data.file_path);
                 }
                 updatedArray.push(data)
@@ -211,24 +217,16 @@ export default class Reading extends Component {
         if (SUCCESS_STATUS == response.status) {
             let updatedArray = []
             response.data.data.map((item, index) => {
-                // file_type: "text"
-                // file_type: "jpg"
-                // file_type: "links"
-                // file_type: "docx"
-                // file_type: "pdf"
-                // file_type: "txt"
-                // file_type: "xlsx"
-                // file_type: "png"
                 const data = JSON.parse(JSON.stringify(item).replace(/\:null/gi, "\:\"\""))
-                // data.relaxation_audio = 'https://theriphy.myfileshosting.com/' + data.file_path + data.relaxation_audio
+                // data.relaxation_audio = 'https://www.theriphy.com/' + data.file_path + data.relaxation_audio
                 // console.log('get image path=======..........>>>>>', data.file_path);
                 if (data.icon_file_path.length > 4 && data.icon_file_name.length > 4) {
-                    data.icon_file_path = 'https://theriphy.myfileshosting.com/public/' + data.icon_file_path + data.icon_file_name
+                    data.icon_file_path = 'https://www.theriphy.com/public/' + data.icon_file_path + data.icon_file_name
                 } else {
                     data.icon_file_path = ''
                 }
                 if (data.file_type === 'text' || data.file_type === 'jpg' || data.file_type === 'png' || data.file_type === 'xlsx' || data.file_type === 'txt' || data.file_type === 'pdf' || data.file_type === 'docx') {
-                    data.file_path = 'https://theriphy.myfileshosting.com/public/' + data.file_path + data.file_name
+                    data.file_path = 'https://www.theriphy.com/public/' + data.file_path + data.file_name
                     // console.log('get image path=======', data.file_path);
                 }
                 updatedArray.push(data)
