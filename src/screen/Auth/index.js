@@ -12,6 +12,7 @@ import { emailValidation, wp, hp, storeData } from '../../utility';
 import { hint_email, hint_password_length, hint_password, hint_valid_email } from '../../utility/Constant';
 // _youTubeRef = React.createRef();
 // netqom_patient100@mailinator.com
+// maxgel@yopmail.com
 // justdoit@100
 var login = 0
 export default class Login extends Component {

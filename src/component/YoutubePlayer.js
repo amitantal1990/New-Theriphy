@@ -41,7 +41,8 @@ export default function YoutubePlayer(props) {
                 height={wp(50.4)}
                 width = {wp(90)}
                 play={true}
-                videoId={props.videoId}
+                videoId={"a-MQGG7Pejs"}
+                // videoId={props.videoId}
                 onError = {(e) => console.log('get error',e)}
                 onChangeState={(e) => console.log(e)}
             />

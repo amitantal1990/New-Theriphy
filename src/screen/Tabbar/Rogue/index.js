@@ -110,12 +110,10 @@ export default class Rogue extends Component {
             }
         } else {
             this.props.navigation.navigate('RogueDetail', { data: item })
-
         }
         let body = new FormData()
         body.append("content_id", item.id);
         console.log('get value---------', body);
-
         API.postApi(API_ROGUE_ACCESS_COUNT, body, this.successUpdateResponse, this.failureResponse);
     }
 

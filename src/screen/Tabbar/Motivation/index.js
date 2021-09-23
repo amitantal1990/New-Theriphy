@@ -39,7 +39,7 @@ export default class Motivation extends Component {
             //title
             'Information!',
             //body
-            'Here you may upload images or create posts to share with your therapist and to remind yourself of your vision and goals. This helps you stay on track, keep your focus and support your motivation for lifelong change!',
+            'Here you will display photos or create affirmations to keep your therapy on the right track. Only you and your therapist will see this so be honest about what you want in your life.',
             [
                 {
                     text: 'Ok',
@@ -313,7 +313,8 @@ export default class Motivation extends Component {
                 return [...newObj];
             });
             console.log('get data Array data----------------', dataArray);
-            let cat = response.data.category_list.map((item, index) => {
+            let dataValue = [{album_name:'Life-cycle'}, {album_name:'Financial Vision'}, {album_name:'Romantic Vision'}, {album_name:'Family Vision'}, {album_name:'Health Vision'}]
+            let cat = dataValue.map((item, index) => {
                 return item.album_name
             })
 
