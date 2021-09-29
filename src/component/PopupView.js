@@ -47,7 +47,7 @@ export default function PopupView(props) {
         setImageObj([imageData])
     }
     const uploadImageOnServer = () => {
-        console.log('get image', category)
+        console.log('get image', category, imageObj)
         if (imageObj.length == 0) {
             Toast.show('Please select image.')
         } else if (category.trim().length == 0) {

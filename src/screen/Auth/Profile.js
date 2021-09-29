@@ -184,7 +184,7 @@ export default class Profile extends Component {
     };
     getPhoto = async (res) => {
         this.setState({ isActionSheet: false })
-        console.log('get image -----', res);
+        // console.log('get image -----', res);
         this.setState({ imageUri: res })
     }
     successMotivationResponse = (response) => {

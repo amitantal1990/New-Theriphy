@@ -24,10 +24,10 @@ export default class ImageDetail extends Component {
     }
 
     _renderItem = ({ item, index }) => {
-        // console.log('get image value', item.uri)
+        console.log('get image value', item)
         return (
-            <View style={{ width: wp('100'), height: hp(76)}}>
-                <Image source={{ uri: item.uri }} style={{ width: '100%', height: '100%',resizeMode: 'contain'  }} />
+            <View style={{ width: wp('100'), height: hp(76) }}>
+                <Image source={{ uri: 'https://www.theriphy.com/public/' + item.file_path + item.file_name, }} style={{ width: '100%', height: '100%', resizeMode: 'contain' }} />
             </View>
         );
     }
@@ -58,7 +58,7 @@ export default class ImageDetail extends Component {
                         renderItem={this._renderItem}
                         sliderWidth={wp(100)}
                         itemWidth={wp(100)}
-                        onSnapToItem={slideIndex => this.setState({ select_index: slideIndex  })}
+                        onSnapToItem={slideIndex => this.setState({ select_index: slideIndex })}
                         // autoplay={true}
                         // activeSlideOffset = {wp(100)*(select_index)}
                         firstItem={select_index}
@@ -81,7 +81,7 @@ export default class ImageDetail extends Component {
                     <Header title={'Album Detail'}
                         onPressAccount={() => props.navigation.navigate('Profile')}
                         isBack={true}
-                        hideSearch = {true}
+                        hideSearch={true}
                         onPressBack={() => this.props.navigation.goBack()}
                     />
                 </View>

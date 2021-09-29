@@ -12,6 +12,7 @@ import MasonryList from "react-native-masonry-list";
 import { CLR_PRIMARY, CLR_LIGHT_LIGHT_GRAY } from '../../../utility/Colors';
 import Popup from '../../../component/PopupView'
 import Modal from 'react-native-modal'
+import { object } from 'prop-types';
 
 export default class Motivation extends Component {
     constructor(props) {
@@ -23,6 +24,8 @@ export default class Motivation extends Component {
             categoryList: [],
             upload_panding: 0,
             isShowDropDown: false,
+            categoryFullList: []
+
         }
     }
     componentDidMount() {
@@ -51,79 +54,44 @@ export default class Motivation extends Component {
         );
     }
     render() {
-        const { motivationList, isUploadImage, categoryList, loading, upload_panding } = this.state
+        const { motivationList, isUploadImage, categoryList, loading, upload_panding, categoryFullList } = this.state
+
+        console.log('categoryList', categoryList, categoryFullList, motivationList)
         return (
             <View style={{ flex: 1, paddingTop: hp(21) }}>
                 <ImageBackground source={bg_icon} style={styles.backgroundImageView}>
-
-                    {/* <View style={{ width: wp(100), height: 44, justifyContent: 'center', alignItems: 'center', marginTop: wp(1.5) }}>
-                        <TouchableOpacity>
-                            <Text style={{ color: CLR_PRIMARY, fontSize: wp(4.2) }}>Photo</Text>
-                        </TouchableOpacity>
-                    </View> */}
 
                     <Modal
                         isVisible={isUploadImage}
                         onBackdropPress={() => this.setState({ isUploadImage: false })}
                     >
                         <Popup
-                            categoryData={categoryList}
+                            categoryData={categoryFullList.length > 0 ? categoryFullList : categoryList}
                             max_upload={upload_panding > 10 ? 10 : upload_panding}
                             onPressCancel={() => this.setState({ isUploadImage: false })}
                             onPressUploadFile={(item, cate) => this.uploadFileOnServer(item, cate)}
                             onPressCustomFile={() => alert('hi')}
                         />
                     </Modal>
-                    {/* {motivationList.length > 0 &&
-                        motivationList.map((item, value) => {
-                            return (
-                                <ScrollView style = {{height: hp(100), width: wp(100)}}>
-                                    <MasonryList
-                                        images={item}
-                                        backgroundColor={'transparent'}
-                                        columns={2}
-                                        // listContainerStyle={{ backgroundColor: 'yellow' }}
-                                        listContainerStyle={{ width: wp('100%'), alignSelf: 'center', paddingLeft: wp('2%') }}
-                                        onPressImage={(item, index) => console.log('get value', item)}
-                                        // onPressImage = {(item, index) => this.getTappedImage(item, index)}  
-                                        // imageContainerStyle={{}}
-                                        imageContainerStyle={{ width: wp('46%'), margin: wp('1%'), borderRadius: 10, }}
-                                    />
-                                </ScrollView>
-                            )
 
-                        })
-                    } */}
 
                     <FlatList
                         showsVerticalScrollIndicator={false}
-                        // bounces={false}
                         style={{ marginTop: 10 }}
                         data={motivationList}
                         renderItem={this.renderMotivationItems}
-                        // refreshControl={
-                        //     <RefreshControl
-                        //         refreshing={isFetching}
-                        //         onRefresh={() => this.onRefresh()}
-                        //     />
-                        // }
+
                         keyExtractor={(item, index) => index.toString()}
                     />
                     <Loader loading={loading} />
-                    {/* <View style={{ width: wp(100), height: 60, justifyContent: 'center', alignItems: 'center' }}>
-                        <TouchableOpacity style={{ flexDirection: 'row' }}
-                            onPress={() => this.uploadImageData()}>
-                            <Text style={{ color: CLR_PRIMARY, fontSize: wp(4.2) }}>Upload Images</Text>
-                            <Image style={{ width: 22, height: 22, tintColor: CLR_PRIMARY, marginLeft: 10, resizeMode: 'contain' }} source={gallery_icon} />
-                        </TouchableOpacity>
-                    </View> */}
+
                 </ImageBackground>
                 <View style={{ position: 'absolute' }}>
                     <Header title={'Motivation'}
                         onPressAccount={() => this.props.navigation.navigate('Profile')}
                         onPressLogout={() => alert('hello')}
                         onPressInfo={() => this.showInfo()}
-                        onOpenDrop = {(res) =>  this.setState({isShowDropDown: res})}
+                        onOpenDrop={(res) => this.setState({ isShowDropDown: res })}
                         hideSearch={true}
                         onPressUpload={() => this.uploadImageData()}
                     />
@@ -142,25 +110,13 @@ export default class Motivation extends Component {
     }
 
     renderMotivationItems = (item) => {
-        // console.log('hjsfhs skdf', item)
+        console.log('item----', item, item.item[0].album_name)
+
         return (
             <View style={{ width: wp(100), alignItems: 'center' }}>
                 <View style={{ width: wp(94), height: 40, justifyContent: 'center', alignItems: 'center', marginTop: wp(1), marginBottom: wp(1), marginHorizontal: wp(3), borderColor: '#832D7750', borderWidth: 1, borderRadius: 8 }}>
-                    <Text style={{ color: CLR_PRIMARY, fontSize: wp(4.5), fontWeight: '700' }}>{this.state.categoryList[item.index]}</Text>
+                    <Text style={{ color: CLR_PRIMARY, fontSize: wp(4.5), fontWeight: '700' }}>{item.item[0].album_name}</Text>
                 </View>
-
-                {/* <MasonryList
-                        images={item.item}
-                        backgroundColor={'transparent'}
-                        columns={2}
-                        // listContainerStyle={{ backgroundColor: 'yellow' }}
-                        listContainerStyle={{ width: wp('100%'), alignSelf: 'center', paddingLeft: wp('2%') }}
-                        onPressImage={(item, index) => console.log('get value', item)}
-                        // onPressImage = {(item, index) => this.getTappedImage(item, index)}  
-                        imageContainerStyle={{}}
-                        imageContainerStyle={{ width: wp('46%'), margin: wp('1%'), borderRadius: 10, }}
-                    /> */}
-
                 <FlatList
                     style={{ width: wp(96) }}
                     numColumns={2}
@@ -173,32 +129,17 @@ export default class Motivation extends Component {
     }
 
     renderSubItems = (item) => {
-        // console.log('get -----', item)
-        // Image.getSize(item.item.uri, (width, height) => {
-        //     if (width > wp(46)) {
-        //         let value = width - wp(46)
-        //         let percent = value * 100 / wp(46)
-        //         let newHeight = height * (100 - percent) / 100
-        //         console.log('get width', value);
-        //         console.log('get height-------', newHeight)
-
-        //     } else {
-        //         let value = wp(46) - width
-        //         let percent = value * 100 / width
-        //         let newHeight = height * (percent+ 100) / 100
-        //         console.log('get width', value);
-        //         console.log('get height-------', newHeight)
-
-        //     }
-        //     console.log('get width', width);
-        //     console.log('get height', height);
-        // })
+        console.log('renderSubItems', item, 'https://www.theriphy.com/public/' + item.item.file_path + item.item.file_name,)
         return (
             <View style={{ width: wp('46%'), margin: wp('1%'), borderRadius: 10, height: wp(46), backgroundColor: CLR_LIGHT_LIGHT_GRAY, overflow: 'hidden' }}>
                 <TouchableOpacity style={{ width: '100%', height: '100%' }}
-                    onPress={() => this.props.navigation.navigate('ImageDetail', { data: this.state.motivationList[item.item.index], selectedIndex: item.index })}
+                    onPress={() => {
+                        console.log('this.state.motivationList', this.state.motivationList[item.item.index], item.item.index)
+
+                        this.props.navigation.navigate('ImageDetail', { data: this.state.motivationList[item.item.index], selectedIndex: item.index })
+                    }}
                 >
-                    <Image source={{ uri: item.item.uri }} style={{ width: '100%', height: '100%' }} />
+                    <Image source={{ uri: 'https://www.theriphy.com/public/' + item.item.file_path + item.item.file_name }} style={{ width: '100%', height: '100%' }} />
                 </TouchableOpacity>
                 <TouchableOpacity style={{ width: 32, height: 32, position: 'absolute', top: 0, right: 0 }}
                     onPress={() => this.deleteImage(item.item)}>
@@ -237,6 +178,7 @@ export default class Motivation extends Component {
             if (this.state.upload_panding > index) {
                 body.append("image[]", item);
             }
+            console.log('this.state.upload_panding > index', this.state.upload_panding, index)
         })
         // body.append("image[]", data);
         body.append("album_name", category);
@@ -297,7 +239,7 @@ export default class Motivation extends Component {
             let myKeyValue = Object.keys(response.data.data);
             let dataArray = myKeyValue.map((key, index) => {
                 let item = response.data.data[key];
-                console.log('get myKey Value data----------------', item);
+                console.log('get myKey Value data----------------', item, response, Object.values(response.data.category_list));
                 let newObj = item.map((value, key) => {
                     console.log('get image ----', value);
                     let obj = {
@@ -307,28 +249,36 @@ export default class Motivation extends Component {
                     }
                     return obj
                 })
+
+                const newCatFullList = Object.values(response.data.category_list).map((item, index) => {
+                    return item.album_name
+                })
+
+                this.setState({ categoryFullList: newCatFullList, })
+
+
                 console.log('get item data----------------', newObj)
-                //   item.file_path = 'https://www.theriphy.com/public/' + item.file_path + item.file_name;
-                // //   console.log('get item data----------------',item);
                 return [...newObj];
             });
             console.log('get data Array data----------------', dataArray);
-            let dataValue = [{album_name:'Life-cycle'}, {album_name:'Financial Vision'}, {album_name:'Romantic Vision'}, {album_name:'Family Vision'}, {album_name:'Health Vision'}]
+            let dataValue = [{ album_name: 'Life-cycle' }, { album_name: 'Financial Vision' }, { album_name: 'Romantic Vision' }, { album_name: 'Family Vision' }, { album_name: 'Health Vision' }]
             let cat = dataValue.map((item, index) => {
                 return item.album_name
             })
 
-            console.log('get image data----------------', cat);
-            // let data = response.data.data.map((item, index) => {
-            //     let obje = {
-            //         uri: 'https://www.theriphy.com/public/' + item.file_path + item.file_name,
-            //         id: item.id
-            //     }
-            //     return obje
-            // })
-            // console.log('get image valeu------', data)
+            let indexofParticular = Object.values(response.data.data).map((item, index) => {
 
-            this.setState({ motivationList: dataArray, categoryList: cat, upload_panding: response.data.pending_uploads })
+                Object.values(item).map((newItem, newIndex) => {
+                    newItem.index = index
+                    return { ...newItem }
+                })
+                // item.selected = index
+                return { ...item }
+            })
+
+            console.log('checkingggg image data----------------', response, indexofParticular, Object.values(response.data.data));
+
+            this.setState({ motivationList: Object.values(response.data.data), categoryList: cat, upload_panding: response.data.pending_uploads })
         } else {
             setTimeout(() => {
                 Toast.show(response.data.message)

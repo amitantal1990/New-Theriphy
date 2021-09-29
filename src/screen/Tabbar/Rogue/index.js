@@ -54,7 +54,7 @@ export default class Rogue extends Component {
                     {/* <View style={styles.listContainer}> */}
                     <FlatList
                         showsVerticalScrollIndicator={false}
-                        style={styles.listContainer}
+                        // style={styles.listContainer}
                         data={rogueList}
                         renderItem={this.renderRogueItems}
                         // refreshControl={
@@ -130,14 +130,14 @@ export default class Rogue extends Component {
     renderRogueItems = (item) => {
         if (item.item.file_type === 'custom') {
             return (
-                <View style={{ width: wp(86), height: 44, justifyContent: 'center', alignItems: 'center', marginTop: item.index > 0 ? wp(8) : wp(3), borderColor: '#832D77', borderWidth: 1, borderRadius: 10 }}>
+                <View style={{alignSelf:'center',  width: wp(86), height: 44, justifyContent: 'center', alignItems: 'center', marginTop: item.index > 0 ? wp(8) : wp(3), borderColor: '#832D77', borderWidth: 1, borderRadius: 10 }}>
                     <Text style={{ color: CLR_PRIMARY, fontSize: wp(4.5), fontWeight: '700' }}>{item.item.title}</Text>
                 </View>
             )
         }
 
         return (
-            <TouchableOpacity style={{ width: '100%', height: 100, borderBottomColor: CLR_PLACEHOLDER, borderBottomWidth: 1, flexDirection: 'row' }}
+            <TouchableOpacity style={{alignSelf:'center', width: '85%', height: 100, borderBottomColor: CLR_PLACEHOLDER, borderBottomWidth: 1, flexDirection: 'row' }}
                 onPress={() => this.tabbedItemView(item.item)}>
                 <Image source={item.item.icon_file_path === '' ? images : { uri: item.item.icon_file_path }} style={styles.topicImage} />
                 <View style={{ width: wp('90') - 86, height: 100 }}>
