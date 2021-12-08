@@ -8,8 +8,10 @@ import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { read_icon, meditation_icon, home_icon, motivation_icon, rogue_icon } from '../utility/ImageConstant'
 import { CLR_SECOND_PRIMARY, CLR_PRIMARY } from '../utility/Colors';
 
-const imageArray = [read_icon,meditation_icon, home_icon, motivation_icon, rogue_icon ]
+const imageArray = [read_icon, meditation_icon, home_icon, motivation_icon, rogue_icon]
 function CustomTabBar({ state, descriptors, navigation }) {
+    console.log(' state, descriptors, navigation ', state, descriptors, navigation)
+
     const focusedOptions = descriptors[state.routes[state.index].key].options;
 
     if (focusedOptions.tabBarVisible === false) {
@@ -63,7 +65,7 @@ function CustomTabBar({ state, descriptors, navigation }) {
                     )
                 }
                 return (
-                    <TouchableOpacity key = {index}
+                    <TouchableOpacity key={index}
                         accessibilityRole="button"
                         accessibilityState={isFocused ? { selected: true } : {}}
                         accessibilityLabel={options.tabBarAccessibilityLabel}
@@ -72,7 +74,7 @@ function CustomTabBar({ state, descriptors, navigation }) {
                         onLongPress={onLongPress}
                         style={{ flex: 1, height: '100%', alignItems: 'center', justifyContent: 'center' }}
                     >
-                         <Image style={{ width: wp(6), height: wp(6), resizeMode: 'contain'}} source={imageArray[index]} />
+                        <Image style={{ width: wp(6), height: wp(6), resizeMode: 'contain' }} source={imageArray[index]} />
                         <Text style={{ color: '#ffffff', textAlign: 'center', fontSize: wp(3.8), marginTop: 6 }}>
                             {label}
                         </Text>
